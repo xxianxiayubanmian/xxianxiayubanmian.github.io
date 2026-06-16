@@ -33,16 +33,13 @@
     pwntools 常用函数速查：收发数据、格式化字符串与 shellcode | Misaki
   </title>
   
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"pwntools 常用函数速查：收发数据、格式化字符串与 shellcode","description":"整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。","url":"https://misaki.wiki/posts/pwntools-cheatsheet-recv-fmtstr-shellcode/","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/posts/pwntools-cheatsheet-recv-fmtstr-shellcode/"},"datePublished":"2025-07-24T13:08:00.000Z","dateModified":"2026-06-16T08:11:14.315Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"pwn","keywords":"pwn, pwntools, shellcode, format-string, libc"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"pwntools 常用函数速查：收发数据、格式化字符串与 shellcode","description":"整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。","url":"https://misaki.wiki/posts/pwntools-cheatsheet-recv-fmtstr-shellcode/","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/posts/pwntools-cheatsheet-recv-fmtstr-shellcode/"},"datePublished":"2025-07-24T13:08:00.000Z","dateModified":"2026-06-16T08:11:14.315Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"pwn","keywords":"pwn, libc, pwntools, shellcode, format-string"}</script>
   
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
     <link rel="icon" href="/img/favicon.ico">
   
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
 
   <!-- hexo site css -->
   <link rel="stylesheet" href="/css/main.css" />
@@ -92,7 +89,7 @@
     <a href="/">
       <!-- 头像取消懒加载，添加no-lazy -->
       
-        <img src="/img/misaki.jpg" alt="">
+        <img src="/img/misaki.jpg" alt="Misaki">
       
     </a>
     <div class="nickname"><a href="/">Misaki</a></div>
@@ -106,14 +103,6 @@
       
         <li class="nav-item" data-path="/archives/">
           <a href="/archives/">文章</a>
-        </li>
-      
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">分类</a>
-        </li>
-      
-        <li class="nav-item" data-path="/tags/">
-          <a href="/tags/">标签</a>
         </li>
       
         <li class="nav-item" data-path="/friends/">
@@ -171,52 +160,6 @@
           2026-06-16 16:11:14
         </span>
         
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="分类"></i>
-                
-                <span class="span--category">
-                  <a href="/categories/pwn/" title="pwn">
-                    <b>#</b> pwn
-                  </a>
-                </span>
-                
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags mr-10" title="标签"></i>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/pwn/" title="pwn">
-                    #pwn
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/pwntools/" title="pwntools">
-                    #pwntools
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/shellcode/" title="shellcode">
-                    #shellcode
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/format-string/" title="format-string">
-                    #format-string
-                  </a>
-                </span>
-                
-                <span class="span--tag mr-8">
-                  <a href="/tags/libc/" title="libc">
-                    #libc
-                  </a>
-                </span>
-                
-              </span>
-          
       </div>
       <div class="markdown-body">
         <h2 id="接受数据"><a href="#接受数据" class="headerlink" title="接受数据"></a>接受数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">p.interactive() <span class="comment">#获取shell后进行交互</span></span><br><span class="line">p.recvall() <span class="comment">#一直接收直到达到文件EOF</span></span><br><span class="line">p.recvline(keepends=<span class="literal">False</span>) <span class="comment">#接收一行，keepends为是否保留行尾的\n。</span></span><br><span class="line">p.recv(numb=字节大小, timeout=default) <span class="comment">#接收指定字节数</span></span><br><span class="line">p.recv()[从第几位接受:接收到第几位] <span class="comment">#接收指定字节数、</span></span><br><span class="line"><span class="built_in">int</span>(p.recv()[从第几位接受:接收到第几位],<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>) <span class="comment">#直到接受到\n截至，接受到为字符型，无法直接进行计算使用</span></span><br><span class="line"><span class="built_in">int</span>(p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>), <span class="number">16</span>) <span class="comment">#可以使用int()强转为16进制</span></span><br><span class="line">u64(p.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="comment">#使用u64打包接受，直到\x7f为止，用于接受地址，不足8位用\x00补齐</span></span><br><span class="line"><span class="built_in">int</span>(p.recv(<span class="number">18</span>), <span class="number">16</span>) </span><br><span class="line"><span class="comment">#接收18位字节，接收的数据类型是16进制</span></span><br><span class="line">u32(p.recvuntil(<span class="string">&#x27;\xf7&#x27;</span>)[-<span class="number">4</span>:])</span><br></pre></td></tr></table></figure>
@@ -268,52 +211,6 @@
               2026-06-16 16:11:14
             </span>
             
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="分类"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/pwn/" title="pwn">
-                        <b>#</b> pwn
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags mr-10" title="标签"></i>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/pwn/" title="pwn">
-                        #pwn
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/pwntools/" title="pwntools">
-                        #pwntools
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/shellcode/" title="shellcode">
-                        #shellcode
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/format-string/" title="format-string">
-                        #format-string
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag mr-8">
-                      <a href="/tags/libc/" title="libc">
-                        #libc
-                      </a>
-                    </span>
-                    
-                  </span>
-              
           </div>
           <div class="post-foot-prev">
             
@@ -352,6 +249,30 @@
 
 
 
+
+
+  <div id="gitalk-container"></div>
+
+  <script>
+    function loadGitalkSuc() {
+      const gitalkRepo = 'text1'.replace(/\.git$/, '').split('/').filter(Boolean).pop()
+      const gitalk = new Gitalk({
+        clientID: 'Ov23liSxI0efH8ZaJdPa',
+        clientSecret: '626893ebd9698d26df631cfd3fac4181f3722297',
+        repo: gitalkRepo,
+        owner: 'xxianxiayubanmian',
+        admin: ['xxianxiayubanmian'],
+        id: location.pathname,
+        distractionFreeMode: false
+      })
+
+      gitalk.render('gitalk-container')
+    }
+  </script>
+  
+    <link rel="stylesheet" href="/plugins/gitalk.css">
+    <script type="text/javascript" src="/plugins/gitalk.min.js" onload="loadGitalkSuc(this)"></script>
+  
 
 
 
@@ -643,12 +564,12 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=pwntools%20%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%EF%BC%9A%E6%94%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E3%80%81%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%20shellcode&url=https%3A%2F%2Fmisaki.wiki%2Fposts%2Fpwntools-cheatsheet-recv-fmtstr-shellcode%2F" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=pwntools%20%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%EF%BC%9A%E6%94%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E3%80%81%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%20shellcode&url=https%3A%2F%2Fmisaki.wiki%2Fposts%2Fpwntools-cheatsheet-recv-fmtstr-shellcode%2F" target="_blank" rel="noopener noreferrer" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
         
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fmisaki.wiki%2Fposts%2Fpwntools-cheatsheet-recv-fmtstr-shellcode%2F" target="_blank" title="Facebook">
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fmisaki.wiki%2Fposts%2Fpwntools-cheatsheet-recv-fmtstr-shellcode%2F" target="_blank" rel="noopener noreferrer" title="Facebook">
             <i class="iconfont icon-facebooksquare"></i>
           </a>
         
