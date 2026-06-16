@@ -4,25 +4,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
   <meta name="author" content="Misaki" />
-  <!-- Open Graph Description 简短摘要-->
   
-  <!-- 用于搜索引擎的文章摘要 -->
-  
-  <!-- 文章页 -->
   <meta name="description" content="记录 glibc tcache_perthread_struct 的结构布局、tcache bins 地址关系、伪造 chunk 思路，以及 CISCN 2021 silverwolf 例题利用过程。" />
   
+  <link rel="canonical" href="https://misaki.wiki/3fe67e4b.html">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="tcache_perthread_struct 结构体原理与堆利用示例 | Misaki" />
+  
+  <meta property="og:description" content="记录 glibc tcache_perthread_struct 的结构布局、tcache bins 地址关系、伪造 chunk 思路，以及 CISCN 2021 silverwolf 例题利用过程。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/3fe67e4b.html" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="tcache_perthread_struct 结构体原理与堆利用示例 | Misaki" />
+  
+  <meta name="twitter:description" content="记录 glibc tcache_perthread_struct 的结构布局、tcache bins 地址关系、伪造 chunk 思路，以及 CISCN 2021 silverwolf 例题利用过程。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
   
   
   <title>
-    
-      tcache_perthread_struct 结构体原理与堆利用示例 
-      
-      
-      |
-    
-     Misaki
+    tcache_perthread_struct 结构体原理与堆利用示例 | Misaki
   </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"tcache_perthread_struct 结构体原理与堆利用示例","description":"记录 glibc tcache_perthread_struct 的结构布局、tcache bins 地址关系、伪造 chunk 思路，以及 CISCN 2021 silverwolf 例题利用过程。","url":"https://misaki.wiki/3fe67e4b.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/3fe67e4b.html"},"datePublished":"2025-09-27T10:08:22.000Z","dateModified":"2026-06-16T07:55:51.780Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"pwn","keywords":"pwn, heap, glibc, tcache"}</script>
+  
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
@@ -96,6 +108,14 @@
           <a href="/archives/">文章</a>
         </li>
       
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
         <li class="nav-item" data-path="/friends/">
           <a href="/friends/">友链</a>
         </li>
@@ -116,21 +136,6 @@
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
 
 
 
@@ -159,13 +164,53 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">tcache_perthread_struct 结构体原理与堆利用示例</div>
+      <h1 class="post-title">tcache_perthread_struct 结构体原理与堆利用示例</h1>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2026-06-13 19:12:42
+          2026-06-16 15:55:51
         </span>
         
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/pwn/" title="pwn">
+                    <b>#</b> pwn
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/heap/" title="heap">
+                    #heap
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/glibc/" title="glibc">
+                    #glibc
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/tcache/" title="tcache">
+                    #tcache
+                  </a>
+                </span>
+                
+              </span>
+          
       </div>
       <div class="markdown-body">
         <p>tcache_perthread_struct 是<font style="color:rgb(78, 161, 219) !important;">GLIBC</font><font style="color:rgb(77, 77, 77);">从2.27开始引入的机制，用于 add 有限的 chuank 数量，可以申请的 size 过小无法 free 到unsorted bin。</font></p>
@@ -251,9 +296,49 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2026-06-13 19:12:42
+              2026-06-16 15:55:51
             </span>
             
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/pwn/" title="pwn">
+                        <b>#</b> pwn
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/heap/" title="heap">
+                        #heap
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/glibc/" title="glibc">
+                        #glibc
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/tcache/" title="tcache">
+                        #tcache
+                      </a>
+                    </span>
+                    
+                  </span>
+              
           </div>
           <div class="post-foot-prev">
             

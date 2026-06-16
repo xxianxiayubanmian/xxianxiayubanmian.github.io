@@ -9,21 +9,26 @@
   <link href="https://misaki.wiki/" rel="alternate"/>
   <link href="https://misaki.wiki/atom.xml" rel="self"/>
   <rights>All rights reserved 2026, Misaki</rights>
-  <subtitle>Misaki</subtitle>
+  <subtitle>IoT 固件安全 / CVE 复现 / Pwn</subtitle>
   <title>Misaki</title>
-  <updated>2026-06-13T11:12:42.105Z</updated>
+  <updated>2026-06-16T07:55:51.775Z</updated>
   <entry>
     <author>
       <name>Misaki</name>
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
     <id>https://misaki.wiki/bfc0fa42.html</id>
     <link href="https://misaki.wiki/bfc0fa42.html"/>
     <published>2026-05-07T11:26:00.000Z</published>
     <summary>记录 CVE-2023-26315 的 UBI/UBIFS 固件提取、Lua 反编译、QEMU 网络环境配置、webserver 启动、初始化绕过和漏洞复现过程。</summary>
     <title>CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现</title>
-    <updated>2026-06-13T11:12:42.105Z</updated>
+    <updated>2026-06-16T07:55:51.775Z</updated>
   </entry>
   <entry>
     <author>
@@ -31,12 +36,18 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="WAVLINK" scheme="https://misaki.wiki/tags/WAVLINK/"/>
     <id>https://misaki.wiki/360d2357.html</id>
     <link href="https://misaki.wiki/360d2357.html"/>
     <published>2026-04-05T13:00:00.000Z</published>
     <summary>记录 WAVLINK NU516 固件解包、MIPS QEMU 模拟、lighttpd 启动修复，以及 CVE-2026-2615、CVE-2026-3704 等命令注入漏洞复现。</summary>
     <title>WAVLINK NU516 固件模拟与多处命令注入漏洞复现</title>
-    <updated>2026-06-13T11:12:42.111Z</updated>
+    <updated>2026-06-16T07:55:51.778Z</updated>
   </entry>
   <entry>
     <author>
@@ -44,12 +55,19 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="TOTOLINK" scheme="https://misaki.wiki/tags/TOTOLINK/"/>
     <id>https://misaki.wiki/3b855173.html</id>
     <link href="https://misaki.wiki/3b855173.html"/>
     <published>2026-04-02T10:45:00.000Z</published>
     <summary>记录 TOTOLINK 固件 CVE-2026-1326、CVE-2026-1327、CVE-2026-1328 的 QEMU 模拟、登录绕过、cstecgi.cgi 分析、命令注入和栈溢出复现。</summary>
     <title>CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现</title>
-    <updated>2026-06-13T11:12:42.109Z</updated>
+    <updated>2026-06-16T07:55:51.778Z</updated>
   </entry>
   <entry>
     <author>
@@ -57,12 +75,17 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="RCE" scheme="https://misaki.wiki/tags/RCE/"/>
+    <category term="Ivanti" scheme="https://misaki.wiki/tags/Ivanti/"/>
+    <category term="ROP" scheme="https://misaki.wiki/tags/ROP/"/>
+    <category term="gdb" scheme="https://misaki.wiki/tags/gdb/"/>
     <id>https://misaki.wiki/1e552f1b.html</id>
     <link href="https://misaki.wiki/1e552f1b.html"/>
     <published>2026-01-08T12:35:00.000Z</published>
     <summary>记录 Ivanti Connect Secure 22.7R2.3 环境搭建、文件提取、gdbserver 调试、DSStr 相关分析、ROP 链构造与 RCE 复现流程。</summary>
     <title>CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试</title>
-    <updated>2026-06-13T11:12:42.108Z</updated>
+    <updated>2026-06-16T07:55:51.777Z</updated>
   </entry>
   <entry>
     <author>
@@ -70,12 +93,18 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="TOTOLINK" scheme="https://misaki.wiki/tags/TOTOLINK/"/>
     <id>https://misaki.wiki/413754f4.html</id>
     <link href="https://misaki.wiki/413754f4.html"/>
     <published>2025-12-07T10:07:00.000Z</published>
     <summary>记录 TOTOLINK NR1800X 固件解包、MIPS QEMU 系统级模拟、后台登录绕过、OpModeCfg 和 UploadFirmwareFile 命令注入复现。</summary>
     <title>TOTOLINK NR1800X 固件模拟、登录绕过与命令注入复现</title>
-    <updated>2026-06-13T11:12:42.110Z</updated>
+    <updated>2026-06-16T07:55:51.778Z</updated>
   </entry>
   <entry>
     <author>
@@ -83,12 +112,18 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="GL.iNet" scheme="https://misaki.wiki/tags/GL-iNet/"/>
+    <category term="OpenWrt" scheme="https://misaki.wiki/tags/OpenWrt/"/>
     <id>https://misaki.wiki/ac829564.html</id>
     <link href="https://misaki.wiki/ac829564.html"/>
     <published>2025-11-13T12:28:00.000Z</published>
     <summary>记录 GL.iNet GL-AX1800 CVE-2024-39226 的 OpenWrt 固件解包、ARM QEMU 模拟、Web 接口分析、POC 构造与 RCE 复现过程。</summary>
     <title>CVE-2024-39226 GL.iNet GL-AX1800 命令注入与 RCE 复现</title>
-    <updated>2026-06-13T11:12:42.107Z</updated>
+    <updated>2026-06-16T07:55:51.776Z</updated>
   </entry>
   <entry>
     <author>
@@ -96,12 +131,17 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
+    <category term="command-execution" scheme="https://misaki.wiki/tags/command-execution/"/>
     <id>https://misaki.wiki/a8caa567.html</id>
     <link href="https://misaki.wiki/a8caa567.html"/>
     <published>2025-11-10T15:24:00.000Z</published>
     <summary>记录 D-Link DI-8100 固件解包、FirmAE 模拟、jhttpd 与 wys 程序分析，以及 msp_info.htm cmd 参数命令执行漏洞复现。</summary>
     <title>CVE-2024-7436 D-Link DI-8100 命令执行漏洞复现</title>
-    <updated>2026-06-13T11:12:42.108Z</updated>
+    <updated>2026-06-16T07:55:51.776Z</updated>
   </entry>
   <entry>
     <author>
@@ -109,12 +149,17 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
     <id>https://misaki.wiki/b4d36f6c.html</id>
     <link href="https://misaki.wiki/b4d36f6c.html"/>
     <published>2025-11-10T08:37:00.000Z</published>
     <summary>记录 D-Link DIR-823G 固件分析、FirmAE 模拟、goahead/HNAP1 接口定位，以及 CVE-2021-43474 命令注入漏洞复现流程。</summary>
     <title>CVE-2021-43474 D-Link DIR-823G HNAP 命令注入复现</title>
-    <updated>2026-06-13T11:12:42.105Z</updated>
+    <updated>2026-06-16T07:55:51.774Z</updated>
   </entry>
   <entry>
     <author>
@@ -122,12 +167,18 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
+    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
+    <category term="buffer-overflow" scheme="https://misaki.wiki/tags/buffer-overflow/"/>
     <id>https://misaki.wiki/ecd37e91.html</id>
     <link href="https://misaki.wiki/ecd37e91.html"/>
     <published>2025-10-30T12:28:00.000Z</published>
     <summary>记录 D-Link DIR-825 固件 CVE-2025-8949 的 FirmAE 仿真、httpd 中 get_ping_app_stat 函数分析、parse_special_char 过滤和 ping 参数溢出复现。</summary>
     <title>CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析</title>
-    <updated>2026-06-13T11:12:42.109Z</updated>
+    <updated>2026-06-16T07:55:51.777Z</updated>
   </entry>
   <entry>
     <author>
@@ -135,12 +186,17 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="NETGEAR" scheme="https://misaki.wiki/tags/NETGEAR/"/>
     <id>https://misaki.wiki/ebe574ed.html</id>
     <link href="https://misaki.wiki/ebe574ed.html"/>
     <published>2025-10-27T14:50:00.000Z</published>
     <summary>记录 NETGEAR R7800 CVE-2020-11790 的固件解包、uhttpd/proccgi 分析、Authorization 处理流程和命令注入复现方法。</summary>
     <title>CVE-2020-11790 NETGEAR R7800 命令注入漏洞复现</title>
-    <updated>2026-06-13T11:12:42.105Z</updated>
+    <updated>2026-06-16T07:55:51.773Z</updated>
   </entry>
   <entry>
     <author>
@@ -148,12 +204,19 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
+    <category term="Tenda" scheme="https://misaki.wiki/tags/Tenda/"/>
+    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
     <id>https://misaki.wiki/4cdfcd80.html</id>
     <link href="https://misaki.wiki/4cdfcd80.html"/>
     <published>2025-10-26T16:48:13.000Z</published>
     <summary>记录 CVE-2018-5767 在 Tenda AC15 固件中的漏洞分析、binwalk 解包、QEMU/FirmAE 模拟、R7WebsSecurityHandler 溢出点定位与复现过程。</summary>
     <title>CVE-2018-5767 Tenda AC15 栈溢出漏洞复现</title>
-    <updated>2026-06-13T11:12:42.104Z</updated>
+    <updated>2026-06-16T07:55:51.773Z</updated>
   </entry>
   <entry>
     <author>
@@ -161,12 +224,16 @@
     </author>
     <category term="pwn" scheme="https://misaki.wiki/categories/pwn/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
+    <category term="libc" scheme="https://misaki.wiki/tags/libc/"/>
+    <category term="CTF" scheme="https://misaki.wiki/tags/CTF/"/>
+    <category term="canary" scheme="https://misaki.wiki/tags/canary/"/>
     <id>https://misaki.wiki/b0d9806f.html</id>
     <link href="https://misaki.wiki/b0d9806f.html"/>
     <published>2025-10-26T16:46:39.000Z</published>
     <summary>记录 2021 鹤城杯 easyecho pwn 题的 Canary 机制、Stack Smash 思路、libc argv[0] 覆盖与 flag 输出利用流程。</summary>
     <title>[2021 鹤城杯] easyecho 栈溢出与 Stack Smash 利用复现</title>
-    <updated>2026-06-13T11:12:42.103Z</updated>
+    <updated>2026-06-16T07:55:51.781Z</updated>
   </entry>
   <entry>
     <author>
@@ -174,12 +241,15 @@
     </author>
     <category term="pwn" scheme="https://misaki.wiki/categories/pwn/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="heap" scheme="https://misaki.wiki/tags/heap/"/>
+    <category term="glibc" scheme="https://misaki.wiki/tags/glibc/"/>
+    <category term="tcache" scheme="https://misaki.wiki/tags/tcache/"/>
     <id>https://misaki.wiki/3fe67e4b.html</id>
     <link href="https://misaki.wiki/3fe67e4b.html"/>
     <published>2025-09-27T10:08:22.000Z</published>
     <summary>记录 glibc tcache_perthread_struct 的结构布局、tcache bins 地址关系、伪造 chunk 思路，以及 CISCN 2021 silverwolf 例题利用过程。</summary>
     <title>tcache_perthread_struct 结构体原理与堆利用示例</title>
-    <updated>2026-06-13T11:12:42.109Z</updated>
+    <updated>2026-06-16T07:55:51.780Z</updated>
   </entry>
   <entry>
     <author>
@@ -187,33 +257,50 @@
     </author>
     <category term="CVE" scheme="https://misaki.wiki/categories/CVE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
+    <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
+    <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
     <id>https://misaki.wiki/2a82278.html</id>
     <link href="https://misaki.wiki/2a82278.html"/>
     <published>2025-09-21T11:18:30.000Z</published>
     <summary>记录 CVE-2022-26258 的固件下载、FirmAE 环境、Device Name 参数分析、hasInjectionString 过滤绕过与 telnet 命令执行复现。</summary>
     <title>CVE-2022-26258 D-Link 设备 Device Name 命令注入复现</title>
-    <updated>2026-06-13T11:12:42.105Z</updated>
+    <updated>2026-06-16T07:55:51.775Z</updated>
   </entry>
   <entry>
     <author>
       <name>Misaki</name>
     </author>
+    <category term="pwn" scheme="https://misaki.wiki/categories/pwn/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="shellcode" scheme="https://misaki.wiki/tags/shellcode/"/>
+    <category term="Linux" scheme="https://misaki.wiki/tags/Linux/"/>
+    <category term="syscall" scheme="https://misaki.wiki/tags/syscall/"/>
     <id>https://misaki.wiki/32423.html</id>
     <link href="https://misaki.wiki/32423.html"/>
     <published>2025-07-24T14:24:00.000Z</published>
     <summary>整理 pwn 做题常用的 Linux 32 位和 64 位系统调用号，方便编写 shellcode、ORW 和系统调用链时快速查询。</summary>
     <title>Linux 32 位与 64 位系统调用号速查表</title>
-    <updated>2026-06-13T11:12:42.113Z</updated>
+    <updated>2026-06-16T07:55:51.781Z</updated>
   </entry>
   <entry>
     <author>
       <name>Misaki</name>
     </author>
+    <category term="pwn" scheme="https://misaki.wiki/categories/pwn/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="pwntools" scheme="https://misaki.wiki/tags/pwntools/"/>
+    <category term="shellcode" scheme="https://misaki.wiki/tags/shellcode/"/>
+    <category term="format-string" scheme="https://misaki.wiki/tags/format-string/"/>
+    <category term="libc" scheme="https://misaki.wiki/tags/libc/"/>
     <id>https://misaki.wiki/19193.html</id>
     <link href="https://misaki.wiki/19193.html"/>
     <published>2025-07-24T13:08:00.000Z</published>
     <summary>整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。</summary>
     <title>pwntools 常用函数速查：收发数据、格式化字符串与 shellcode</title>
-    <updated>2026-06-13T11:12:42.109Z</updated>
+    <updated>2026-06-16T07:55:51.780Z</updated>
   </entry>
 </feed>

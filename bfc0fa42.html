@@ -4,25 +4,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
   <meta name="author" content="Misaki" />
-  <!-- Open Graph Description 简短摘要-->
   
-  <!-- 用于搜索引擎的文章摘要 -->
-  
-  <!-- 文章页 -->
   <meta name="description" content="记录 CVE-2023-26315 的 UBI/UBIFS 固件提取、Lua 反编译、QEMU 网络环境配置、webserver 启动、初始化绕过和漏洞复现过程。" />
   
+  <link rel="canonical" href="https://misaki.wiki/bfc0fa42.html">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现 | Misaki" />
+  
+  <meta property="og:description" content="记录 CVE-2023-26315 的 UBI/UBIFS 固件提取、Lua 反编译、QEMU 网络环境配置、webserver 启动、初始化绕过和漏洞复现过程。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/bfc0fa42.html" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现 | Misaki" />
+  
+  <meta name="twitter:description" content="记录 CVE-2023-26315 的 UBI/UBIFS 固件提取、Lua 反编译、QEMU 网络环境配置、webserver 启动、初始化绕过和漏洞复现过程。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
   
   
   <title>
-    
-      CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现 
-      
-      
-      |
-    
-     Misaki
+    CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现 | Misaki
   </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现","description":"记录 CVE-2023-26315 的 UBI/UBIFS 固件提取、Lua 反编译、QEMU 网络环境配置、webserver 启动、初始化绕过和漏洞复现过程。","url":"https://misaki.wiki/bfc0fa42.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/bfc0fa42.html"},"datePublished":"2026-05-07T11:26:00.000Z","dateModified":"2026-06-16T07:55:51.775Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"CVE","keywords":"pwn, CVE, IoT, firmware, QEMU, D-Link"}</script>
+  
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
@@ -96,6 +108,14 @@
           <a href="/archives/">文章</a>
         </li>
       
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
         <li class="nav-item" data-path="/friends/">
           <a href="/friends/">友链</a>
         </li>
@@ -116,21 +136,6 @@
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
 
 
 
@@ -159,13 +164,65 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现</div>
+      <h1 class="post-title">CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现</h1>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2026-06-13 19:12:42
+          2026-06-16 15:55:51
         </span>
         
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CVE/" title="CVE">
+                    <b>#</b> CVE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/CVE/" title="CVE">
+                    #CVE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/IoT/" title="IoT">
+                    #IoT
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/firmware/" title="firmware">
+                    #firmware
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/QEMU/" title="QEMU">
+                    #QEMU
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/D-Link/" title="D-Link">
+                    #D-Link
+                  </a>
+                </span>
+                
+              </span>
+          
       </div>
       <div class="markdown-body">
         <p>[[CVE]]<br><a href="%5Bhttps://www.dlink.com.cn/techsupport/download.ashx?file=6495%5D(https://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.102_10.0.75.zip)">固件下载</a><br>Ubuntu25.10<br>IDA9.1<br>binwalk<br>qemu<br>firmwalker</p>
@@ -315,9 +372,61 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2026-06-13 19:12:42
+              2026-06-16 15:55:51
             </span>
             
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CVE/" title="CVE">
+                        <b>#</b> CVE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/CVE/" title="CVE">
+                        #CVE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/IoT/" title="IoT">
+                        #IoT
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/firmware/" title="firmware">
+                        #firmware
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/QEMU/" title="QEMU">
+                        #QEMU
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/D-Link/" title="D-Link">
+                        #D-Link
+                      </a>
+                    </span>
+                    
+                  </span>
+              
           </div>
           <div class="post-foot-prev">
             

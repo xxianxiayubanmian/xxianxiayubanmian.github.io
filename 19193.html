@@ -4,25 +4,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
   <meta name="author" content="Misaki" />
-  <!-- Open Graph Description 简短摘要-->
   
-  <!-- 用于搜索引擎的文章摘要 -->
-  
-  <!-- 文章页 -->
   <meta name="description" content="整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。" />
   
+  <link rel="canonical" href="https://misaki.wiki/19193.html">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="pwntools 常用函数速查：收发数据、格式化字符串与 shellcode | Misaki" />
+  
+  <meta property="og:description" content="整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/19193.html" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="pwntools 常用函数速查：收发数据、格式化字符串与 shellcode | Misaki" />
+  
+  <meta name="twitter:description" content="整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
   
   
   <title>
-    
-      pwntools 常用函数速查：收发数据、格式化字符串与 shellcode 
-      
-      
-      |
-    
-     Misaki
+    pwntools 常用函数速查：收发数据、格式化字符串与 shellcode | Misaki
   </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"pwntools 常用函数速查：收发数据、格式化字符串与 shellcode","description":"整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。","url":"https://misaki.wiki/19193.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/19193.html"},"datePublished":"2025-07-24T13:08:00.000Z","dateModified":"2026-06-16T07:55:51.780Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"pwn","keywords":"pwn, pwntools, shellcode, format-string, libc"}</script>
+  
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
@@ -96,6 +108,14 @@
           <a href="/archives/">文章</a>
         </li>
       
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
         <li class="nav-item" data-path="/friends/">
           <a href="/friends/">友链</a>
         </li>
@@ -116,21 +136,6 @@
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
 
 
 
@@ -159,13 +164,59 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">pwntools 常用函数速查：收发数据、格式化字符串与 shellcode</div>
+      <h1 class="post-title">pwntools 常用函数速查：收发数据、格式化字符串与 shellcode</h1>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2026-06-13 19:12:42
+          2026-06-16 15:55:51
         </span>
         
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/pwn/" title="pwn">
+                    <b>#</b> pwn
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwntools/" title="pwntools">
+                    #pwntools
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/shellcode/" title="shellcode">
+                    #shellcode
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/format-string/" title="format-string">
+                    #format-string
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/libc/" title="libc">
+                    #libc
+                  </a>
+                </span>
+                
+              </span>
+          
       </div>
       <div class="markdown-body">
         <h2 id="接受数据"><a href="#接受数据" class="headerlink" title="接受数据"></a>接受数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">p.interactive() <span class="comment">#获取shell后进行交互</span></span><br><span class="line">p.recvall() <span class="comment">#一直接收直到达到文件EOF</span></span><br><span class="line">p.recvline(keepends=<span class="literal">False</span>) <span class="comment">#接收一行，keepends为是否保留行尾的\n。</span></span><br><span class="line">p.recv(numb=字节大小, timeout=default) <span class="comment">#接收指定字节数</span></span><br><span class="line">p.recv()[从第几位接受:接收到第几位] <span class="comment">#接收指定字节数、</span></span><br><span class="line"><span class="built_in">int</span>(p.recv()[从第几位接受:接收到第几位],<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>) <span class="comment">#直到接受到\n截至，接受到为字符型，无法直接进行计算使用</span></span><br><span class="line"><span class="built_in">int</span>(p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>), <span class="number">16</span>) <span class="comment">#可以使用int()强转为16进制</span></span><br><span class="line">u64(p.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="comment">#使用u64打包接受，直到\x7f为止，用于接受地址，不足8位用\x00补齐</span></span><br><span class="line"><span class="built_in">int</span>(p.recv(<span class="number">18</span>), <span class="number">16</span>) </span><br><span class="line"><span class="comment">#接收18位字节，接收的数据类型是16进制</span></span><br><span class="line">u32(p.recvuntil(<span class="string">&#x27;\xf7&#x27;</span>)[-<span class="number">4</span>:])</span><br></pre></td></tr></table></figure>
@@ -214,9 +265,55 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2026-06-13 19:12:42
+              2026-06-16 15:55:51
             </span>
             
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/pwn/" title="pwn">
+                        <b>#</b> pwn
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwntools/" title="pwntools">
+                        #pwntools
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/shellcode/" title="shellcode">
+                        #shellcode
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/format-string/" title="format-string">
+                        #format-string
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/libc/" title="libc">
+                        #libc
+                      </a>
+                    </span>
+                    
+                  </span>
+              
           </div>
           <div class="post-foot-prev">
             

