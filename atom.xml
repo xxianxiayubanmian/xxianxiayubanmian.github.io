@@ -59,8 +59,8 @@
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
     <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
-    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
     <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
     <category term="TOTOLINK" scheme="https://misaki.wiki/tags/TOTOLINK/"/>
     <id>https://misaki.wiki/posts/cve-2026-1328-totolink-auth-bypass-command-injection-stack-overflow/</id>
     <link href="https://misaki.wiki/posts/cve-2026-1328-totolink-auth-bypass-command-injection-stack-overflow/"/>
@@ -207,10 +207,10 @@
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
-    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
-    <category term="Tenda" scheme="https://misaki.wiki/tags/Tenda/"/>
     <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
     <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
+    <category term="Tenda" scheme="https://misaki.wiki/tags/Tenda/"/>
     <id>https://misaki.wiki/posts/cve-2018-5767-tenda-ac15-stack-overflow/</id>
     <link href="https://misaki.wiki/posts/cve-2018-5767-tenda-ac15-stack-overflow/"/>
     <published>2025-10-26T16:48:13.000Z</published>
