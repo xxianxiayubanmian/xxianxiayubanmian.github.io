@@ -101,7 +101,9 @@ theme: mistline
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: git
+  repo: git@github.com:xxianxiayubanmian/xxianxiayubanmian.github.io.git
+  branch: gh-pages
 
 # Gitalk 评论系统（自旧博客迁移，仓库与参数保持一致以复用历史评论）
 gitalk:
