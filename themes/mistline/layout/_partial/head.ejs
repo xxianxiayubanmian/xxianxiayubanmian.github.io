@@ -1,0 +1,9 @@
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f3f1ee">
+<title><% if (is_post() || is_page()) { %><%= page.title %> · <%= config.title %><% } else if (is_archive()) { %>归档 · <%= config.title %><% } else if (is_category()) { %><%= page.category %> · <%= config.title %><% } else if (is_tag()) { %><%= page.tag %> · <%= config.title %><% } else { %><%= config.title %><% } %></title>
+<meta name="description" content="<%= page.description || plain_text(page.excerpt || page.content, 80) || config.description %>">
+<link rel="icon" type="image/x-icon" href="<%- url_for('img/favicon.ico') %>">
+<link rel="stylesheet" href="<%- url_for('css/style.css') %>">
+</head>

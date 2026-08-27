@@ -1,0 +1,32 @@
+<section class="hero" id="top">
+  <div class="hero-foot" data-reveal>
+    <a class="scroll-cue" href="#journal">开始阅读<b aria-hidden="true">↓</b></a>
+  </div>
+</section>
+
+<section class="journal" id="journal">
+  <header class="journal-head" data-reveal>
+    <p class="eyebrow"><span>02</span>JOURNAL</p>
+    <p class="count"><%= site.posts.length %> 篇笔记 · 持续更新</p>
+  </header>
+
+  <div class="filter-bar" id="filterBar" data-search-json="<%- url_for('search.json') %>">
+    <label class="search-field">
+      <span aria-hidden="true">⌕</span>
+      <input id="searchInput" type="search" placeholder="搜索标题、标签或摘要……" autocomplete="off">
+      <button type="button" id="clearSearch" hidden aria-label="清除搜索">×</button>
+    </label>
+    <% if (site.tags && site.tags.length) { %>
+    <div class="chips" id="tagChips" role="group" aria-label="按标签筛选">
+      <% site.tags.each(function (tag) { %>
+      <button type="button" class="chip" data-tag="<%= tag.name %>"><%= tag.name %></button>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+
+  <div class="ledger" id="ledger">
+    <%- partial('_partial/entries', { posts: site.posts.sort('date', -1) }) %>
+    <p class="empty-state" id="emptyState" hidden>没有匹配的笔记，换个关键词试试。</p>
+  </div>
+</section>

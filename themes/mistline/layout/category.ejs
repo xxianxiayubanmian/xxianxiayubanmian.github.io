@@ -1,0 +1,7 @@
+<header class="mini-hero">
+  <p class="eyebrow"><span>CATEGORY</span><%= page.posts.length %> 篇</p>
+  <h1 class="page-title"><%= page.category %><span class="dot-accent">.</span></h1>
+</header>
+<div class="ledger ledger-wide">
+  <%- partial('_partial/entries', { posts: page.posts.sort('date', -1) }) %>
+</div>

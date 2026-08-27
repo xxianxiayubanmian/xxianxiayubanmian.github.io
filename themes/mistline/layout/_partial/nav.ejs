@@ -1,0 +1,17 @@
+<header class="site-nav">
+  <a class="brand" href="<%- url_for('/') %>">
+    <img class="brand-mark" src="<%- url_for('img/favicon.ico') %>" alt="" aria-hidden="true">
+    <span class="brand-name"><%= theme.brand || config.title %></span>
+  </a>
+  <nav class="nav-links" aria-label="主导航">
+    <% for (var label in theme.menu) { %>
+    <a href="<%- url_for(theme.menu[label]) %>"><%= label %></a>
+    <% } %>
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="展开菜单" aria-expanded="false" aria-controls="mobileMenu">≡</button>
+</header>
+<nav class="mobile-menu" id="mobileMenu" aria-label="移动端导航" hidden>
+  <% for (var label in theme.menu) { %>
+  <a href="<%- url_for(theme.menu[label]) %>"><%= label %></a>
+  <% } %>
+</nav>

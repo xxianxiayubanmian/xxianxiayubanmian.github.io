@@ -1,0 +1,49 @@
+<%
+var roles = page.roles || [];
+var since = null;
+var oldest = site.posts.sort('date').data[0];
+if (oldest) { since = oldest.date.format('YYYY-MM'); }
+%>
+
+<header class="mini-hero">
+  <p class="eyebrow"><span>ABOUT</span><%= config.title %></p>
+  <h1 class="page-title" data-reveal><%= page.title || '关于' %><span class="dot-accent">.</span></h1>
+</header>
+
+<div class="about-band" data-reveal>
+  <% if (page.avatar) { %>
+  <img class="about-avatar" src="<%- url_for(page.avatar) %>" alt="<%= config.author %> 的头像">
+  <% } %>
+  <div class="about-profile">
+    <h2 class="about-name"><%= config.author %></h2>
+    <% if (roles.length) { %>
+    <ul class="about-roles">
+      <% roles.forEach(function (r) { %><li><%= r %></li><% }) %>
+    </ul>
+    <% } %>
+    <p class="about-intro"><%= page.intro || config.description %></p>
+    <% if (page.qq || page.email) { %>
+    <ul class="about-contact">
+      <% if (page.qq) { %>
+      <li><em>QQ</em><span><%= page.qq %></span></li>
+      <% } %>
+      <% if (page.email) { %>
+      <li><em>MAIL</em><a href="mailto:<%= page.email %>"><%= page.email %></a></li>
+      <% } %>
+    </ul>
+    <% } %>
+  </div>
+</div>
+
+<ul class="about-stats" data-reveal>
+  <li><span>POSTS</span><b><%= site.posts.length %></b></li>
+  <li><span>TAGS</span><b><%= site.tags.length %></b></li>
+  <li><span>CATEGORIES</span><b><%= site.categories.length %></b></li>
+  <% if (since) { %><li><span>SINCE</span><b><%= since %></b></li><% } %>
+</ul>
+
+<% if (page.content && page.content.trim()) { %>
+<div class="flat-prose">
+  <article class="prose prose-solo"><%- page.content %></article>
+</div>
+<% } %>

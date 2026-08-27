@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="<%= config.language || 'zh-CN' %>">
+<%- partial('_partial/head') %>
+<body class="<%= is_post() ? 'is-article' : 'is-listing' %>">
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <%- partial('_partial/nav') %>
+  <main id="main">
+    <%- body %>
+  </main>
+  <%- partial('_partial/footer') %>
+  <button class="to-top" id="toTop" aria-label="返回顶部" title="返回顶部">↑</button>
+  <button class="toc-fab" id="tocFab" aria-label="打开目录" title="目录" hidden>☰</button>
+  <script src="<%- url_for('js/main.js') %>" defer></script>
+</body>
+</html>

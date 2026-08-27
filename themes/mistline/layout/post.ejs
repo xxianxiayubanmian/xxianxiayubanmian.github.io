@@ -1,0 +1,65 @@
+<%
+var tocHtml = toc(page.content, { list_number: false, max_depth: 3 });
+var hasToc = /href/.test(tocHtml);
+var tagNames = page.tags ? page.tags.data : [];
+var catNames = page.categories ? page.categories.data : [];
+%>
+
+<header class="post-cover">
+  <img class="post-bg-img" src="<%- url_for('img/mist.jpg') %>" alt="" aria-hidden="true">
+  <div class="post-info">
+    <p class="cover-meta">
+      <span><%= date(page.date, 'YYYY.MM.DD') %></span>
+      <span><%= reading_min(page.content) %> MIN READ</span>
+      <% if (catNames.length) { catNames.forEach(function (c) { %>
+      <span><%= c.name %></span>
+      <% }); } else { %>
+      <span>MISTLINE JOURNAL</span>
+      <% } %>
+    </p>
+    <h1 class="post-title"><%= page.title || '无题' %></h1>
+    <% if (tagNames.length) { %>
+    <p class="cover-tags">
+      <% tagNames.forEach(function (t) { %>
+      <a href="<%- url_for('tags/' + t.name + '/') %>">#<%= t.name %></a>
+      <% }) %>
+    </p>
+    <% } %>
+  </div>
+</header>
+
+<section class="article-wrap">
+  <article class="post-card">
+    <div class="prose">
+      <%- page.content %>
+    </div>
+    <%- partial('_partial/comments') %>
+  </article>
+
+  <aside class="aside-col">
+    <div class="aside-sticky">
+      <% if (hasToc) { %>
+      <nav class="toc" aria-label="目录">
+        <p>目录 / INDEX</p>
+        <%- tocHtml %>
+      </nav>
+      <% } %>
+      <a class="back-link" href="<%- url_for('/') %>">← 返回时间线</a>
+    </div>
+  </aside>
+</section>
+
+<nav class="pager" aria-label="文章导航">
+  <% if (page.prev) { %>
+  <a class="pager-item" href="<%- url_for(page.prev.path) %>">
+    <span>上一篇 · PREV</span>
+    <strong><%= page.prev.title || '无题' %></strong>
+  </a>
+  <% } else { %><span class="pager-item pager-ghost"><span>已有最新一篇</span></span><% } %>
+  <% if (page.next) { %>
+  <a class="pager-item pager-next" href="<%- url_for(page.next.path) %>">
+    <span>下一篇 · NEXT</span>
+    <strong><%= page.next.title || '无题' %></strong>
+  </a>
+  <% } else { %><span class="pager-item pager-ghost pager-next"><span>没有更多了</span></span><% } %>
+</nav>

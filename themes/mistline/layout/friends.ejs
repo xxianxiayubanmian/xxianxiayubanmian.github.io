@@ -1,0 +1,34 @@
+<%
+var items = page.friends || [];
+var strip = function (u) { return String(u || '').replace(/^https?:\/\//, '').replace(/\/$/, ''); };
+%>
+
+<header class="mini-hero">
+  <p class="eyebrow"><span>FRIENDS</span><%= config.title %></p>
+  <h1 class="page-title" data-reveal><%= page.title || '友链' %><span class="dot-accent">.</span></h1>
+</header>
+
+<div class="friends-intro" data-reveal>
+  <p><%= page.intro || '欢迎交换友链。' %></p>
+</div>
+
+<% if (items.length) { %>
+<section class="friend-grid">
+  <% items.forEach(function (f) { %>
+  <a class="friend-card" href="<%- f.url %>" target="_blank" rel="noopener noreferrer" data-reveal>
+    <% if (f.avatar) { %>
+    <img class="friend-avatar" src="<%- f.avatar %>" alt="<%= f.name %> 的头像" loading="lazy">
+    <% } else { %>
+    <span class="friend-fallback" aria-hidden="true"><%= ((f.name || '?').slice(0, 1)).toUpperCase() %></span>
+    <% } %>
+    <span class="friend-body">
+      <b><%= f.name || '未命名站点' %><% if (f.sample) { %><em>示例</em><% } %></b>
+      <% if (f.desc) { %><small><%= f.desc %></small><% } %>
+      <code><%= strip(f.url) %></code>
+    </span>
+  </a>
+  <% }) %>
+</section>
+<% } else { %>
+<p class="empty-state" style="padding:80px 5vw;">还没有收录任何友链。</p>
+<% } %>

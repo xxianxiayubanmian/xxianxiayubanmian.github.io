@@ -1,0 +1,23 @@
+<% /* 账本式文章索引列表。期望局部变量 posts（数组） */ %>
+<% var lastYearMark = null; %>
+<% posts.forEach(function (post, i) { %>
+<%   if (!lastYearMark || lastYearMark !== post.date.year()) { lastYearMark = post.date.year(); %>
+<div class="year-mark" data-reveal><span><%= lastYearMark %></span><i></i></div>
+<%   } %>
+<article class="entry" data-reveal>
+  <a class="entry-link" href="<%- url_for(post.path) %>">
+    <span class="entry-no"><%= ('0' + (i + 1)).slice(-2) %></span>
+    <span class="entry-main">
+      <h3 class="entry-title"><%= post.title || '无题' %></h3>
+      <p class="entry-excerpt"><%= plain_text(post.excerpt || post.content, 100) || '……' %></p>
+    </span>
+    <span class="entry-side">
+      <time datetime="<%= date_xml(post.date) %>"><%= date(post.date, 'MM-DD') %></time>
+      <% if (post.tags && post.tags.length) { %>
+      <em><%= post.tags.map(function(t){ return '#' + t.name; }).join(' ') %></em>
+      <% } %>
+    </span>
+    <span class="entry-arrow" aria-hidden="true">↗</span>
+  </a>
+</article>
+<% }) %>

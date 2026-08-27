@@ -1,0 +1,9 @@
+<header class="mini-hero">
+  <p class="eyebrow"><span>PAGE</span><%= date(page.date, 'YYYY.MM.DD') %></p>
+  <h1 class="page-title" data-reveal><%= page.title || '无题' %></h1>
+</header>
+<div class="flat-prose">
+  <article class="prose prose-solo">
+    <%- page.content %>
+  </article>
+</div>

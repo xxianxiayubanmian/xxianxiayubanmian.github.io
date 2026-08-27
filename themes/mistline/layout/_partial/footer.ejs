@@ -1,0 +1,12 @@
+<footer class="site-footer">
+  <a class="brand brand-light" href="<%- url_for('/') %>">
+    <img class="brand-mark" src="<%- url_for('img/favicon.ico') %>" alt="" aria-hidden="true">
+    <span class="brand-name"><%= theme.brand || config.title %></span>
+  </a>
+  <p class="foot-motto"><%= theme.footer_text %></p>
+  <p class="foot-meta">
+    © <%= new Date().getFullYear() %> <%= config.author %>
+    · Powered by <a href="https://hexo.io/" target="_blank" rel="noreferrer">Hexo</a>
+    · Theme <b>Mistline</b>
+  </p>
+</footer>

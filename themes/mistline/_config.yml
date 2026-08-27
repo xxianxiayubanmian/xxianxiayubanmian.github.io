@@ -1,0 +1,29 @@
+# =============================================================
+# Mistline 主题配置
+# =============================================================
+
+# 品牌名（导航栏左上角）
+brand: Misaki
+
+# 导航菜单（保持插入顺序渲染）
+menu:
+  文章: /
+  归档: /archives/
+  友链: /friends/
+  关于: /about/
+
+# Hero 区文案（首页首屏）
+hero_label: PERSONAL TECHNOLOGY JOURNAL
+hero_title_line1: 艺术千秋，
+hero_words:            # 大字轮播词
+  - 人生朝露。
+hero_copy: ''
+
+# 首页底部陈述区的领域标签
+topics:
+  - Engineering Notes
+  - Design Journal
+  - Reading Log
+
+# 页脚一句话
+footer_text: Ars longa, vita brevis — Art is long, life is fleeting.
