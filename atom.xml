@@ -11,7 +11,22 @@
   <rights>All rights reserved 2026, Misaki</rights>
   <subtitle>IoT 固件安全 / CVE 复现 / Pwn</subtitle>
   <title>Misaki</title>
-  <updated>2026-06-16T08:11:14.310Z</updated>
+  <updated>2026-09-21T08:48:57.301Z</updated>
+  <entry>
+    <author>
+      <name>Misaki</name>
+    </author>
+    <category term="IoT 安全" scheme="https://misaki.wiki/categories/IoT-%E5%AE%89%E5%85%A8/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <id>https://misaki.wiki/posts/tp-link-archer-mr200-eu-v7-%E5%9B%BA%E4%BB%B6%E8%A7%A3%E5%AF%86/</id>
+    <link href="https://misaki.wiki/posts/tp-link-archer-mr200-eu-v7-%E5%9B%BA%E4%BB%B6%E8%A7%A3%E5%AF%86/"/>
+    <published>2026-09-21T02:00:00.000Z</published>
+    <summary>
+      <![CDATA[<h2 id="1、判断固件是否被加密"><a href="#1、判断固件是否被加密" class="headerlink" title="1、判断固件是否被加密"></a>1、判断固件是否被加密</h2><h3 id="emba扫描"><a href="#emba扫描"]]>
+    </summary>
+    <title>TP-Link Archer MR200(EU)v7 固件解密</title>
+    <updated>2026-09-21T08:48:57.301Z</updated>
+  </entry>
   <entry>
     <author>
       <name>Misaki</name>
@@ -20,9 +35,9 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
-    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
     <id>https://misaki.wiki/posts/cve-2023-26315-router-firmware-qemu-vulnerability-reproduction/</id>
     <link href="https://misaki.wiki/posts/cve-2023-26315-router-firmware-qemu-vulnerability-reproduction/"/>
     <published>2026-05-07T11:26:00.000Z</published>
@@ -38,9 +53,9 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="WAVLINK" scheme="https://misaki.wiki/tags/WAVLINK/"/>
     <id>https://misaki.wiki/posts/wavlink-nu516-firmware-command-injection/</id>
     <link href="https://misaki.wiki/posts/wavlink-nu516-firmware-command-injection/"/>
@@ -57,10 +72,10 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
-    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
     <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="TOTOLINK" scheme="https://misaki.wiki/tags/TOTOLINK/"/>
     <id>https://misaki.wiki/posts/cve-2026-1328-totolink-auth-bypass-command-injection-stack-overflow/</id>
     <link href="https://misaki.wiki/posts/cve-2026-1328-totolink-auth-bypass-command-injection-stack-overflow/"/>
@@ -95,9 +110,9 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="TOTOLINK" scheme="https://misaki.wiki/tags/TOTOLINK/"/>
     <id>https://misaki.wiki/posts/totolink-nr1800x-firmware-auth-bypass-command-injection/</id>
     <link href="https://misaki.wiki/posts/totolink-nr1800x-firmware-auth-bypass-command-injection/"/>
@@ -114,8 +129,8 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="GL.iNet" scheme="https://misaki.wiki/tags/GL-iNet/"/>
     <category term="OpenWrt" scheme="https://misaki.wiki/tags/OpenWrt/"/>
     <id>https://misaki.wiki/posts/cve-2024-39226-glinet-gl-ax1800-command-injection-rce/</id>
@@ -151,8 +166,8 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
     <id>https://misaki.wiki/posts/cve-2021-43474-dlink-dir-823g-hnap-command-injection/</id>
     <link href="https://misaki.wiki/posts/cve-2021-43474-dlink-dir-823g-hnap-command-injection/"/>
@@ -169,9 +184,9 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
-    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
     <category term="buffer-overflow" scheme="https://misaki.wiki/tags/buffer-overflow/"/>
     <id>https://misaki.wiki/posts/cve-2025-8949-dlink-dir-825-ping-buffer-overflow/</id>
     <link href="https://misaki.wiki/posts/cve-2025-8949-dlink-dir-825-ping-buffer-overflow/"/>
@@ -188,9 +203,9 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
     <category term="NETGEAR" scheme="https://misaki.wiki/tags/NETGEAR/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <id>https://misaki.wiki/posts/cve-2020-11790-netgear-r7800-command-injection/</id>
     <link href="https://misaki.wiki/posts/cve-2020-11790-netgear-r7800-command-injection/"/>
     <published>2025-10-27T14:50:00.000Z</published>
@@ -206,11 +221,11 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
-    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
-    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
     <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
     <category term="Tenda" scheme="https://misaki.wiki/tags/Tenda/"/>
+    <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
+    <category term="QEMU" scheme="https://misaki.wiki/tags/QEMU/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <id>https://misaki.wiki/posts/cve-2018-5767-tenda-ac15-stack-overflow/</id>
     <link href="https://misaki.wiki/posts/cve-2018-5767-tenda-ac15-stack-overflow/"/>
     <published>2025-10-26T16:48:13.000Z</published>
@@ -223,8 +238,8 @@
       <name>Misaki</name>
     </author>
     <category term="pwn" scheme="https://misaki.wiki/categories/pwn/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="stack-overflow" scheme="https://misaki.wiki/tags/stack-overflow/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
     <category term="CTF" scheme="https://misaki.wiki/tags/CTF/"/>
     <category term="canary" scheme="https://misaki.wiki/tags/canary/"/>
     <category term="libc" scheme="https://misaki.wiki/tags/libc/"/>
@@ -259,10 +274,10 @@
     <category term="CVE" scheme="https://misaki.wiki/tags/CVE/"/>
     <category term="IoT" scheme="https://misaki.wiki/tags/IoT/"/>
     <category term="firmware" scheme="https://misaki.wiki/tags/firmware/"/>
-    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
-    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
-    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
     <category term="FirmAE" scheme="https://misaki.wiki/tags/FirmAE/"/>
+    <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
+    <category term="command-injection" scheme="https://misaki.wiki/tags/command-injection/"/>
+    <category term="D-Link" scheme="https://misaki.wiki/tags/D-Link/"/>
     <id>https://misaki.wiki/posts/cve-2022-26258-dlink-device-name-command-injection/</id>
     <link href="https://misaki.wiki/posts/cve-2022-26258-dlink-device-name-command-injection/"/>
     <published>2025-09-21T11:18:30.000Z</published>
