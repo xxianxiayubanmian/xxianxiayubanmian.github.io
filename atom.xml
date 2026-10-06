@@ -11,22 +11,20 @@
   <rights>All rights reserved 2026, Misaki</rights>
   <subtitle>IoT 固件安全 / CVE 复现 / Pwn</subtitle>
   <title>Misaki</title>
-  <updated>2026-10-06T21:37:59.504Z</updated>
+  <updated>2026-10-06T21:46:07.911Z</updated>
   <entry>
     <author>
       <name>Misaki</name>
     </author>
     <category term="pwn" scheme="https://misaki.wiki/tags/pwn/"/>
-    <id>https://misaki.wiki/posts/tp-file-title/</id>
-    <link href="https://misaki.wiki/posts/tp-file-title/"/>
-    <published>2026-10-06T21:38:20.499Z</published>
+    <id>https://misaki.wiki/posts/cobalt-strike-%E5%85%8D%E6%9D%80/</id>
+    <link href="https://misaki.wiki/posts/cobalt-strike-%E5%85%8D%E6%9D%80/"/>
+    <published>2026-09-27T13:24:00.000Z</published>
     <summary>
       <![CDATA[<h2 id="CoblatStrike"><a href="#CoblatStrike" class="headerlink" title="CoblatStrike"></a>CoblatStrike</h2><p>Cobalt]]>
     </summary>
-    <title>
-      <![CDATA[<% tp.file.title %>]]>
-    </title>
-    <updated>2026-10-06T21:37:59.504Z</updated>
+    <title>Cobalt Strike 免杀</title>
+    <updated>2026-10-06T21:46:07.911Z</updated>
   </entry>
   <entry>
     <author>
